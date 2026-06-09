@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS2 MAJOR DRAFT — IEM Cologne 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #1a1d24;
+    --border: #252830;
+    --accent: #e8b84b;
+    --accent2: #c8973a;
+    --text: #e2e6ef;
+    --muted: #6b7280;
+    --danger: #ef4444;
+    --green: #4ade80;
+    --blue: #60a5fa;
+    --orange: #fb923c;
+    --yellow: #facc15;
+    --purple: #c084fc;
+    --slate: #94a3b8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(10,12,16,0.95);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .logo span { color: var(--text); }
+  .pick-counter {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .pick-counter strong { color: var(--accent); font-size: 16px; }
+
+  /* ── PICK SLOTS HEADER ── */
+  .slots-bar {
+    display: flex;
+    gap: 6px;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    overflow-x: auto;
+  }
+  .slot-pill {
+    flex: 1;
+    min-width: 100px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .slot-pill.filled {
+    border-color: var(--accent);
+    background: rgba(232,184,75,0.08);
+  }
+  .slot-pill .slot-role {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .slot-pill .slot-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .slot-pill .slot-fp {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .slot-pill .slot-empty {
+    font-size: 14px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* ── SPIN SECTION ── */
+  .spin-section {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .pick-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .team-display {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 44px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 6px;
+    min-height: 52px;
+    transition: opacity 0.3s;
+  }
+  .team-stage-badge {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    margin-bottom: 24px;
+  }
+  .badge-legends { background: rgba(232,184,75,0.15); color: var(--accent); border: 1px solid rgba(232,184,75,0.3); }
+  .badge-challengers { background: rgba(96,165,250,0.15); color: var(--blue); border: 1px solid rgba(96,165,250,0.3); }
+  .badge-contenders { background: rgba(107,114,128,0.2); color: var(--muted); border: 1px solid rgba(107,114,128,0.3); }
+
+  .spin-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 14px 40px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .spin-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+  .spin-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .reroll-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 22px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-left: 10px;
+  }
+  .reroll-btn:hover:not(:disabled) { color: var(--text); border-color: var(--muted); }
+  .reroll-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .reroll-count {
+    font-size: 11px;
+    display: block;
+    margin-top: 2px;
+  }
+
+  /* ── PLAYERS GRID ── */
+  .players-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  @media (max-width: 768px) {
+    .players-grid { grid-template-columns: repeat(2, 1fr); }
+    .team-display { font-size: 28px; }
+    .slots-bar { flex-wrap: wrap; }
+  }
+
+  .player-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.2s;
+    cursor: default;
+    position: relative;
+  }
+  .player-card.available {
+    cursor: pointer;
+  }
+  .player-card.available:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232,184,75,0.12);
+  }
+  .player-card.drafted {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .player-photo {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--surface2);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .player-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  .player-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    background: var(--surface2);
+  }
+  .role-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .player-info {
+    padding: 12px;
+  }
+  .player-nick {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .player-name {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fp-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .fp-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .fp-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--accent);
+  }
+  .fp-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .fp-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+
+  /* ── POSITION DOTS (bolinhas) ── */
+  .slot-dots {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .slot-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .slot-dot:hover {
+    transform: scale(1.15);
+  }
+  .slot-dot.filled {
+    border-color: transparent;
+  }
+  .slot-dot[data-role="AWPer"] { border-color: #4ade80; }
+  .slot-dot[data-role="IGL"] { border-color: #60a5fa; }
+  .slot-dot[data-role="Entry"] { border-color: #fb923c; }
+  .slot-dot[data-role="Support"] { border-color: #facc15; }
+  .slot-dot[data-role="Rifler"] { border-color: #c084fc; }
+  .slot-dot[data-role="Lurker"] { border-color: #94a3b8; }
+  .slot-dot[data-role="AWPer"]:hover { background: rgba(74,222,128,0.2); }
+  .slot-dot[data-role="IGL"]:hover { background: rgba(96,165,250,0.2); }
+  .slot-dot[data-role="Entry"]:hover { background: rgba(251,146,60,0.2); }
+  .slot-dot[data-role="Support"]:hover { background: rgba(250,204,21,0.2); }
+  .slot-dot[data-role="Rifler"]:hover { background: rgba(192,132,252,0.2); }
+  .slot-dot[data-role="Lurker"]:hover { background: rgba(148,163,184,0.2); }
+
+  .tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1d24;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 10px;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.5px;
+    z-index: 200;
+  }
+  .slot-dot:hover .tooltip { opacity: 1; }
+
+  /* ── RESULT SCREEN ── */
+  #result-screen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  #result-screen.active { display: flex; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 560px;
+    width: 100%;
+    text-align: center;
+  }
+  .result-record {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 80px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .result-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+  .result-roster {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 32px;
+    text-align: left;
+  }
+  .result-player {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+  .result-player-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .result-nick {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .result-role-tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Barlow Condensed', sans-serif;
+    background: rgba(255,255,255,0.07);
+    color: var(--muted);
+  }
+  .result-fp {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .result-warning {
+    font-size: 12px;
+    color: #f97316;
+    margin-bottom: 20px;
+    background: rgba(249,115,22,0.08);
+    border: 1px solid rgba(249,115,22,0.2);
+    border-radius: 6px;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .result-score-detail {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .play-again-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 14px 40px;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+  }
+  .play-again-btn:hover { background: var(--accent2); }
+
+  /* ── PICKED ROSTER SIDEBAR ── */
+  .picked-roster {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 32px;
+  }
+  .picked-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .picked-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .picked-list { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .picked-item {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .picked-item .pi-nick {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .picked-item .pi-fp {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    color: var(--accent);
+    margin-left: auto;
+  }
+
+  /* ── SPINNING ANIMATION ── */
+  @keyframes spin-flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .spinning { animation: spin-flash 0.15s ease 6; }
+
+  /* ── SCORE BAR ── */
+  .score-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .score-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    min-width: 70px;
+  }
+  .score-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--accent));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+  .score-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 40px;
+    text-align: right;
+  }
+  .record-preview {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    min-width: 50px;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">CS2 <span>Major</span> Draft</div>
+  <div class="pick-counter">
+    IEM Cologne 2026 · Pick <strong id="hdr-pick">1</strong> of 5
+  </div>
+</header>
+
+<div class="slots-bar" id="slots-bar">
+  <!-- Preenchido via JS -->
+</div>
+
+<div class="main">
+
+  <!-- Score em progresso -->
+  <div class="score-bar" id="score-bar" style="display:none">
+    <span class="score-label">Firepower</span>
+    <div class="score-track"><div class="score-fill" id="score-fill" style="width:0%"></div></div>
+    <span class="score-value" id="score-value">—</span>
+    <span class="record-preview" id="record-preview">—</span>
+  </div>
+
+  <!-- Picked roster (aparece após 1ª pick) -->
+  <div class="picked-roster" id="picked-roster" style="display:none">
+    <div class="picked-title">Seu elenco</div>
+    <div class="picked-list" id="picked-list"></div>
+  </div>
+
+  <!-- Spin section -->
+  <div class="spin-section">
+    <div class="pick-label" id="pick-label">Spin para sortear um time</div>
+    <div class="team-display" id="team-display">?</div>
+    <div id="stage-badge"></div>
+    <div>
+      <button class="spin-btn" id="spin-btn" onclick="spin()">SPIN ◈</button>
+      <button class="reroll-btn" id="reroll-btn" onclick="reroll()" disabled>
+        ↺ Reroll
+        <span class="reroll-count" id="reroll-count">(1 disponível)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Players grid -->
+  <div class="players-grid" id="players-grid" style="display:none"></div>
+
+</div>
+
+<!-- Result screen -->
+<div id="result-screen">
+  <div class="result-card">
+    <div class="result-record" id="res-record">—</div>
+    <div class="result-label">Seu resultado na temporada</div>
+    <div class="result-warning" id="res-warning" style="display:none"></div>
+    <div class="result-roster" id="res-roster"></div>
+    <div class="result-score-detail" id="res-detail"></div>
+    <button class="play-again-btn" onclick="resetGame()">↺ Jogar Novamente</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+let state = {
+  pick: 1,           // 1..5
+  currentTeam: null,
+  usedTeams: [],
+  rerollsLeft: 1,
+  rerolledThisRound: false,
+  pickedPlayers: [],
+  draftedThisRound: false,
+  gameOver: false
+};
+
+const SLOTS_CONFIG = [
+  { label: "Pick 1" },
+  { label: "Pick 2" },
+  { label: "Pick 3" },
+  { label: "Pick 4" },
+  { label: "Pick 5" }
+];
+
+function getRoleColor(role) {
+  const m = { AWPer:"#4ade80", IGL:"#60a5fa", Entry:"#fb923c", Support:"#facc15", Rifler:"#c084fc", Lurker:"#94a3b8" };
+  return m[role] || "#6b7280";
+}
+
+function getRoleEmoji(role) {
+  const m = { AWPer:"🎯", IGL:"👑", Entry:"⚡", Support:"🛡️", Rifler:"🔫", Lurker:"👤" };
+  return m[role] || "•";
+}
+
+function renderSlotsBar() {
+  const bar = document.getElementById("slots-bar");
+  bar.innerHTML = SLOTS_CONFIG.map((s, i) => {
+    const p = state.pickedPlayers[i];
+    if (p) {
+      return `<div class="slot-pill filled">
+        <div class="slot-role">${p.role}</div>
+        <div class="slot-name">${p.nick}</div>
+        <div class="slot-fp">FP ${p.firepower}</div>
+      </div>`;
+    }
+    const active = i === state.pick - 1;
+    return `<div class="slot-pill" style="${active ? 'border-color:rgba(232,184,75,0.3)' : ''}">
+      <div class="slot-role">${s.label}</div>
+      <div class="slot-empty">${active ? '▶ Agora' : '—'}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderPickedRoster() {
+  if (state.pickedPlayers.length === 0) {
+    document.getElementById("picked-roster").style.display = "none";
+    return;
+  }
+  document.getElementById("picked-roster").style.display = "";
+  const list = document.getElementById("picked-list");
+  list.innerHTML = state.pickedPlayers.map(p => `
+    <div class="picked-item">
+      <span style="font-size:14px">${getRoleEmoji(p.role)}</span>
+      <div>
+        <div class="pi-nick">${p.nick}</div>
+        <div style="font-size:10px;color:var(--muted)">${p.role}</div>
+      </div>
+      <span class="pi-fp">${p.firepower}</span>
+    </div>
+  `).join("");
+}
+
+function renderScoreBar() {
+  if (state.pickedPlayers.length === 0) {
+    document.getElementById("score-bar").style.display = "none";
+    return;
+  }
+  document.getElementById("score-bar").style.display = "";
+  const score = calcTeamScore(state.pickedPlayers);
+  const pct = Math.min(100, score);
+  document.getElementById("score-fill").style.width = pct + "%";
+  document.getElementById("score-value").textContent = score;
+  document.getElementById("record-preview").textContent = scoreToRecord(score);
+  document.getElementById("hdr-pick").textContent = state.pick;
+}
+
+function randomTeam() {
+  const available = TEAMS.filter(t => !state.usedTeams.includes(t.id));
+  if (available.length === 0) return null;
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+function spin() {
+  if (state.gameOver) return;
+
+  const spinBtn = document.getElementById("spin-btn");
+  const teamDisplay = document.getElementById("team-display");
+  const grid = document.getElementById("players-grid");
+
+  spinBtn.disabled = true;
+  document.getElementById("reroll-btn").disabled = true;
+  state.draftedThisRound = false;
+  state.rerolledThisRound = false;
+
+  // Animação de spin
+  let count = 0;
+  const interval = setInterval(() => {
+    const t = randomTeam();
+    if (t) teamDisplay.textContent = t.name;
+    count++;
+    if (count >= 8) {
+      clearInterval(interval);
+      const team = randomTeam();
+      if (!team) return;
+      state.currentTeam = team;
+      teamDisplay.textContent = team.name;
+      teamDisplay.classList.add("spinning");
+      setTimeout(() => teamDisplay.classList.remove("spinning"), 500);
+
+      // Badge stage
+      const badge = document.getElementById("stage-badge");
+      const bc = { Legends: "badge-legends", Challengers: "badge-challengers", Contenders: "badge-contenders" };
+      badge.innerHTML = `<span class="team-stage-badge ${bc[team.stage] || ''}">${team.stage} · ${team.region}</span>`;
+
+      document.getElementById("pick-label").textContent = `Pick ${state.pick} de 5 — Escolha 1 jogador`;
+
+      // Habilita reroll se ainda tem
+      if (state.rerollsLeft > 0 && !state.rerolledThisRound) {
+        const rb = document.getElementById("reroll-btn");
+        rb.disabled = false;
+        document.getElementById("reroll-count").textContent = `(${state.rerollsLeft} disponível)`;
+      }
+
+      renderPlayers(team);
+    }
+  }, 80);
+}
+
+function reroll() {
+  if (state.rerollsLeft <= 0 || state.rerolledThisRound || state.draftedThisRound) return;
+  state.rerollsLeft--;
+  state.rerolledThisRound = true;
+  document.getElementById("reroll-btn").disabled = true;
+  document.getElementById("reroll-count").textContent = `(0 disponível)`;
+
+  const available = TEAMS.filter(t => !state.usedTeams.includes(t.id) && t.id !== state.currentTeam.id);
+  if (available.length === 0) return;
+  const team = available[Math.floor(Math.random() * available.length)];
+  state.currentTeam = team;
+  document.getElementById("team-display").textContent = team.name;
+
+  const bc = { Legends: "badge-legends", Challengers: "badge-challengers", Contenders: "badge-contenders" };
+  document.getElementById("stage-badge").innerHTML =
+    `<span class="team-stage-badge ${bc[team.stage] || ''}">${team.stage} · ${team.region}</span>`;
+
+  renderPlayers(team);
+}
+
+function renderPlayers(team) {
+  const grid = document.getElementById("players-grid");
+  grid.style.display = "grid";
+  grid.innerHTML = team.players.map((p, idx) => {
+    const roleColor = getRoleColor(p.role);
+    const fpPct = p.firepower;
+    const photoContent = p.photo && !p.photo.includes("placeholder")
+      ? `<img src="${p.photo}" alt="${p.nick}" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${getRoleEmoji(p.role)}</div>'">`
+      : `<div class="player-photo-placeholder" style="font-size:48px">${getRoleEmoji(p.role)}</div>`;
+
+    // Bolinhas de slot: uma por slot disponível (picks restantes)
+    const remainingSlots = 5 - state.pickedPlayers.length;
+    const dotHtml = Array.from({length: remainingSlots}).map((_, si) => {
+      const slotNum = state.pickedPlayers.length + si + 1;
+      return `<div class="slot-dot" data-role="${p.role}" onclick="pickPlayer(${idx}, ${slotNum}, event)">
+        <span class="tooltip">Pick ${slotNum}</span>
+      </div>`;
+    }).join("");
+
+    return `<div class="player-card available" id="pcard-${idx}">
+      <div class="player-photo">${photoContent}
+        <div class="role-badge" style="color:${roleColor}">${getRoleEmoji(p.role)} ${p.role}</div>
+      </div>
+      <div class="player-info">
+        <div class="player-nick">${p.nick}</div>
+        <div class="player-name">${p.name}</div>
+        <div class="fp-row">
+          <span class="fp-label">Firepower</span>
+          <span class="fp-value">${p.firepower}</span>
+        </div>
+        <div class="fp-bar"><div class="fp-bar-fill" style="width:${fpPct}%;background:${roleColor}"></div></div>
+        <div class="slot-dots" id="dots-${idx}">${dotHtml}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function pickPlayer(playerIdx, slotNum, e) {
+  e.stopPropagation();
+  if (state.draftedThisRound) return;
+
+  const team = state.currentTeam;
+  const player = { ...team.players[playerIdx], team: team.name };
+
+  state.pickedPlayers.push(player);
+  state.usedTeams.push(team.id);
+  state.draftedThisRound = true;
+
+  // Marca card como drafted
+  document.getElementById("players-grid").querySelectorAll(".player-card").forEach((c, i) => {
+    if (i === playerIdx) {
+      c.classList.remove("available");
+      c.classList.add("drafted");
+      c.style.opacity = "1";
+      c.style.border = "1.5px solid var(--accent)";
+      c.style.boxShadow = "0 0 16px rgba(232,184,75,0.2)";
+    } else {
+      c.classList.add("drafted");
+    }
+  });
+
+  document.getElementById("reroll-btn").disabled = true;
+
+  renderSlotsBar();
+  renderPickedRoster();
+  renderScoreBar();
+
+  if (state.pickedPlayers.length >= 5) {
+    setTimeout(showResult, 900);
+    return;
+  }
+
+  state.pick++;
+  document.getElementById("hdr-pick").textContent = state.pick;
+
+  // Próximo spin após delay
+  setTimeout(() => {
+    document.getElementById("spin-btn").disabled = false;
+    document.getElementById("pick-label").textContent = `Spin para o Pick ${state.pick} de 5`;
+    document.getElementById("team-display").textContent = "?";
+    document.getElementById("stage-badge").innerHTML = "";
+    document.getElementById("players-grid").style.display = "none";
+  }, 1200);
+}
+
+function showResult() {
+  state.gameOver = true;
+  const score = calcTeamScore(state.pickedPlayers);
+  const record = scoreToRecord(score);
+
+  document.getElementById("res-record").textContent = record;
+
+  // Warnings de composição
+  const roleCounts = {};
+  state.pickedPlayers.forEach(p => { roleCounts[p.role] = (roleCounts[p.role] || 0) + 1; });
+  const warnings = [];
+  if ((roleCounts["AWPer"] || 0) > 1) warnings.push(`${roleCounts["AWPer"]} AWPers — penalidade aplicada`);
+  if ((roleCounts["IGL"] || 0) > 1) warnings.push(`${roleCounts["IGL"]} IGLs — penalidade aplicada`);
+  if ((roleCounts["Lurker"] || 0) > 1) warnings.push(`${roleCounts["Lurker"]} Lurkers — penalidade aplicada`);
+  if ((roleCounts["Entry"] || 0) > 2) warnings.push(`${roleCounts["Entry"]} Entries — penalidade aplicada`);
+  if ((roleCounts["Support"] || 0) > 2) warnings.push(`${roleCounts["Support"]} Supports — penalidade aplicada`);
+  const warnEl = document.getElementById("res-warning");
+  if (warnings.length) {
+    warnEl.style.display = "";
+    warnEl.textContent = "⚠ " + warnings.join(" · ");
+  } else {
+    warnEl.style.display = "none";
+  }
+
+  // Roster
+  const avgFP = Math.round(state.pickedPlayers.reduce((s,p) => s + p.firepower, 0) / state.pickedPlayers.length);
+  document.getElementById("res-roster").innerHTML = state.pickedPlayers.map(p => `
+    <div class="result-player">
+      <div class="result-player-left">
+        <span style="font-size:18px">${getRoleEmoji(p.role)}</span>
+        <div>
+          <div class="result-nick" style="color:${getRoleColor(p.role)}">${p.nick}</div>
+          <div style="font-size:10px;color:var(--muted)">${p.team}</div>
+        </div>
+        <span class="result-role-tag">${p.role}</span>
+      </div>
+      <span class="result-fp">${p.firepower}</span>
+    </div>
+  `).join("");
+
+  document.getElementById("res-detail").innerHTML =
+    `Firepower médio: <strong style="color:var(--accent)">${avgFP}</strong> · Score final: <strong style="color:var(--accent)">${score}</strong>`;
+
+  document.getElementById("result-screen").classList.add("active");
+}
+
+function resetGame() {
+  state = {
+    pick: 1, currentTeam: null, usedTeams: [],
+    rerollsLeft: 1, rerolledThisRound: false,
+    pickedPlayers: [], draftedThisRound: false, gameOver: false
+  };
+  document.getElementById("result-screen").classList.remove("active");
+  document.getElementById("team-display").textContent = "?";
+  document.getElementById("stage-badge").innerHTML = "";
+  document.getElementById("pick-label").textContent = "Spin para sortear um time";
+  document.getElementById("players-grid").style.display = "none";
+  document.getElementById("players-grid").innerHTML = "";
+  document.getElementById("spin-btn").disabled = false;
+  document.getElementById("reroll-btn").disabled = true;
+  document.getElementById("reroll-count").textContent = "(1 disponível)";
+  document.getElementById("hdr-pick").textContent = "1";
+  renderSlotsBar();
+  renderPickedRoster();
+  renderScoreBar();
+}
+
+// Init
+renderSlotsBar();
+</script>
+</body>
+</html>
