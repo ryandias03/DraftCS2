@@ -1301,7 +1301,7 @@ function renderPickedRoster() {
     const roleColor = getRoleColor(getPrimaryRole(p));
     const fpPct = p.firepower;
     const photoContent = p.photo && !p.photo.includes('placeholder')
-      ? `<div class="player-photo"><img src="${p.photo}" alt="${p.nick}" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${displayRoleEmoji(p)}</div>'"></div>`
+      ? `<div class="player-photo"><img src="${p.photo}" alt="${p.nick}" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${displayRoleEmoji(p)}</div>'"></div>`
       : `<div class="player-photo-placeholder" style="font-size:40px">${displayRoleEmoji(p)}</div>`;
 
     return `
@@ -1350,7 +1350,7 @@ function renderPicksRow() {
     if (!p) {
       return `<div></div>`;
     }
-    const photo = p.photo && !p.photo.includes('placeholder') ? `<div class="pic"><img src="${p.photo}" alt="${p.nick}"></div>` : `<div class="pic"><div style="width:100%;height:100%;background:var(--surface);display:flex;align-items:center;justify-content:center">${displayRoleEmoji(p)}</div></div>`;
+    const photo = p.photo && !p.photo.includes('placeholder') ? `<div class="pic"><img src="${p.photo}" alt="${p.nick}" referrerpolicy="no-referrer"></div>` : `<div class="pic"><div style="width:100%;height:100%;background:var(--surface);display:flex;align-items:center;justify-content:center">${displayRoleEmoji(p)}</div></div>`;
     return `
       <div class="slot-picked-card">
         ${photo}
@@ -1520,7 +1520,7 @@ function renderPlayers(team) {
     const roleLabel = displayRoles(p);
     const fpPct = p.firepower;
     const photoContent = p.photo && !p.photo.includes("placeholder")
-      ? `<img src="${p.photo}" alt="${p.nick}" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${displayRoleEmoji(p)}</div>'">`
+      ? `<img src="${p.photo}" alt="${p.nick}" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${displayRoleEmoji(p)}</div>'">`
       : `<div class="player-photo-placeholder" style="font-size:48px">${displayRoleEmoji(p)}</div>`;
 
     // Clique no card seleciona o jogador (apenas próximo slot)
@@ -1614,7 +1614,7 @@ function showResult() {
     const roleColor = getRoleColor(getPrimaryRole(p));
     const fpPct = p.firepower;
     const photoContent = p.photo && !p.photo.includes('placeholder')
-      ? `<div class="player-photo"><img src="${p.photo}" alt="${p.nick}" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${displayRoleEmoji(p)}</div>'"></div>`
+      ? `<div class="player-photo"><img src="${p.photo}" alt="${p.nick}" referrerpolicy="no-referrer" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${displayRoleEmoji(p)}</div>'"></div>`
       : `<div class="player-photo-placeholder" style="font-size:40px">${displayRoleEmoji(p)}</div>`;
 
     return `
