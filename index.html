@@ -124,6 +124,77 @@
     padding: 32px 24px;
   }
 
+  /* ── ACTIVE TEAM CARD (time sorteado) ── */
+  .active-team-card {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 28px 32px;
+    margin: 28px 0 20px;
+    background: linear-gradient(135deg, rgba(232,184,75,0.14) 0%, rgba(232,184,75,0.04) 100%);
+    border: 2px solid rgba(232,184,75,0.5);
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(232,184,75,0.18), inset 0 1px 0 rgba(255,255,255,0.06);
+    animation: team-card-in 0.45s ease;
+  }
+  @keyframes team-card-in {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .active-team-card .at-logo-wrap {
+    flex-shrink: 0;
+    width: 112px;
+    height: 112px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.25);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .active-team-card .at-logo {
+    max-width: 96px;
+    max-height: 96px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 14px rgba(0,0,0,0.55));
+  }
+  .active-team-card .at-body { flex: 1; min-width: 0; }
+  .active-team-card .at-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .active-team-card .at-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text);
+    line-height: 1.05;
+    margin-bottom: 10px;
+  }
+  .active-team-card .at-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .active-team-card .at-pick-hint {
+    font-size: 13px;
+    color: var(--muted);
+    margin-left: auto;
+    text-align: right;
+  }
+  @media (max-width: 600px) {
+    .active-team-card { flex-direction: column; text-align: center; padding: 22px; }
+    .active-team-card .at-pick-hint { margin-left: 0; text-align: center; width: 100%; }
+  }
+
   /* ── SPIN SECTION ── */
   .spin-section {
     text-align: center;
@@ -138,16 +209,7 @@
     margin-bottom: 8px;
   }
   .team-display {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 44px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text);
-    line-height: 1;
-    margin-bottom: 6px;
-    min-height: 52px;
-    transition: opacity 0.3s;
+    display: none;
   }
   .team-stage-badge {
     display: inline-block;
@@ -162,6 +224,112 @@
   .badge-legends { background: rgba(232,184,75,0.15); color: var(--accent); border: 1px solid rgba(232,184,75,0.3); }
   .badge-challengers { background: rgba(96,165,250,0.15); color: var(--blue); border: 1px solid rgba(96,165,250,0.3); }
   .badge-contenders { background: rgba(107,114,128,0.2); color: var(--muted); border: 1px solid rgba(107,114,128,0.3); }
+
+  /* Roulette strip */
+  .team-roulette { margin-top: 8px; display: flex; justify-content: center; }
+  .roulette-window {
+    width: 920px;
+    max-width: 100%;
+    height: 140px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px 0;
+    background: linear-gradient(180deg, rgba(26,29,36,0.95), rgba(17,19,24,0.98));
+    box-shadow: inset 0 2px 20px rgba(0,0,0,0.35);
+  }
+  .roulette-window::before,
+  .roulette-window::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .roulette-window::before {
+    left: 0;
+    background: linear-gradient(90deg, rgba(17,19,24,0.95), transparent);
+  }
+  .roulette-window::after {
+    right: 0;
+    background: linear-gradient(-90deg, rgba(17,19,24,0.95), transparent);
+  }
+  .roulette-track {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    transform: translateX(0);
+    will-change: transform;
+  }
+  .roulette-item {
+    width: 220px;
+    flex: 0 0 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 12px;
+    color: var(--text);
+    box-sizing: border-box;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .roulette-item:not(:first-child) {
+    border-left: 1px solid rgba(255,255,255,0.05);
+  }
+  .roulette-item img {
+    height: 76px;
+    max-width: 180px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 10px rgba(0,0,0,0.55));
+    display: block;
+  }
+  .roulette-item .rname {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text);
+    text-align: center;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .roulette-item.selected {
+    background: rgba(232,184,75,0.08);
+    border-radius: 8px;
+    transform: scale(1.04);
+  }
+  .roulette-item.selected .rname { color: var(--accent); }
+  .roulette-marker {
+    position: absolute;
+    left: 50%;
+    top: 6px;
+    bottom: 6px;
+    width: 4px;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, var(--accent), var(--accent2));
+    box-shadow: 0 0 16px rgba(232,184,75,0.7);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .spin-controls {
+    width: 920px;
+    max-width: 100%;
+    margin: 16px auto 0;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 
   .spin-btn {
     font-family: 'Barlow Condensed', sans-serif;
@@ -344,7 +512,7 @@
     border-radius: 50%;
     border: 1.5px solid var(--border);
     background: var(--surface2);
-    cursor: pointer;
+    cursor: default;
     transition: all 0.15s;
     display: flex;
     align-items: center;
@@ -393,6 +561,210 @@
   }
   .slot-dot:hover .tooltip { opacity: 1; }
 
+  /* ── TOURNAMENT SIMULATOR ── */
+  .tournament-simulator-section {
+    padding: 0 32px 32px;
+  }
+
+  .tournament-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .tournament-header {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .tournament-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .tournament-header p {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .tournament-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .btn-simulate,
+  .btn-multiple {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .btn-simulate:hover {
+    border-color: var(--accent);
+    background: rgba(232,184,75,0.1);
+    color: var(--accent);
+  }
+
+  .btn-multiple:hover {
+    border-color: var(--blue);
+    background: rgba(96,165,250,0.1);
+    color: var(--blue);
+  }
+
+  .tournament-results,
+  .simulation-stats {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .results-header,
+  .stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .results-header h3,
+  .stats-header h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .close-results {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 20px;
+    transition: color 0.2s;
+  }
+
+  .close-results:hover {
+    color: var(--text);
+  }
+
+  .results-content,
+  .stats-content {
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+
+  .tournament-match {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .match-stage {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .match-teams {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .team-name {
+    flex: 1;
+  }
+
+  .match-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+  }
+
+  .stats-table th {
+    background: rgba(232,184,75,0.08);
+    border: 1px solid var(--border);
+    padding: 10px;
+    text-align: left;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .stats-table td {
+    border: 1px solid var(--border);
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .stats-table tr:hover {
+    background: rgba(232,184,75,0.05);
+  }
+
+  .stat-pct {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ── SWISS SELECTION ── */
+  .swiss-team-card {
+    position: relative;
+  }
+
+  .swiss-team-card.your-team {
+    border-color: var(--accent) !important;
+    background: rgba(232,184,75,0.1) !important;
+  }
+
+  .swiss-selection-logo {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    display: block;
+  }
+
   /* ── RESULT SCREEN ── */
   #result-screen {
     display: none;
@@ -406,15 +778,78 @@
     padding: 24px;
   }
   #result-screen.active { display: flex; }
+  #result-screen.minimized {
+    inset: auto auto 20px 20px;
+    width: 320px;
+    height: auto;
+    background: rgba(10,12,16,0.95);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
 
   .result-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 40px;
-    max-width: 560px;
+    max-width: 1100px;
     width: 100%;
     text-align: center;
+  }
+  #result-screen.minimized .result-card {
+    padding: 16px;
+    border-radius: 8px;
+    text-align: left;
+  }
+  #result-screen.minimized .result-record,
+  #result-screen.minimized .result-label,
+  #result-screen.minimized .result-score-detail {
+    display: none;
+  }
+  #result-screen.minimized .result-roster {
+    display: none;
+  }
+  #result-screen.minimized .result-warning {
+    display: none;
+  }
+  #result-screen.minimized .play-again-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    width: 100%;
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  #result-screen.minimized .result-header {
+    margin-bottom: 12px;
+  }
+  .result-minimize-btn {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+  .result-minimize-btn:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+  #result-screen.minimized .result-minimize-btn::before {
+    content: "▲ ";
+  }
+  .result-minimize-btn::before {
+    content: "▼ ";
   }
   .result-record {
     font-family: 'Barlow Condensed', sans-serif;
@@ -433,19 +868,24 @@
     margin-bottom: 32px;
   }
   .result-roster {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 32px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
     text-align: left;
   }
+
+  @media (max-width: 600px) {
+    .result-roster { grid-template-columns: repeat(2, 1fr); }
+  }
+
   .result-player {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
     background: var(--surface2);
-    border-radius: 8px;
-    padding: 10px 16px;
+    border-radius: 10px;
+    padding: 12px;
+    gap: 8px;
   }
   .result-player-left {
     display: flex;
@@ -473,6 +913,7 @@
     font-size: 20px;
     font-weight: 700;
     color: var(--accent);
+    text-align: right;
   }
   .result-warning {
     font-size: 12px;
@@ -525,11 +966,23 @@
   .picked-list {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+    gap: 12px;
   }
 
   @media (max-width: 600px) {
     .picked-list { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .score-bar-card {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 0;
   }
 
   .picked-item {
@@ -553,12 +1006,22 @@
     margin-left: auto;
   }
 
+  /* Picks row below players */
+  .picks-row { display:grid; grid-template-columns: repeat(5, 1fr); gap:12px; margin-top:18px; }
+  .slot-picked-card { background: linear-gradient(180deg,var(--surface2), rgba(255,255,255,0.01)); border:1px solid var(--border); border-radius:10px; overflow:hidden; padding:8px; display:flex; gap:8px; align-items:center; }
+  .slot-picked-card .pic { width:72px; height:72px; border-radius:8px; overflow:hidden; flex-shrink:0; }
+  .slot-picked-card .pic img { width:100%; height:100%; object-fit:cover; }
+  .slot-picked-card .meta { display:flex; flex-direction:column; gap:4px; }
+  .slot-picked-card .meta .nick { font-family:'Barlow Condensed',sans-serif; font-weight:900; text-transform:uppercase; font-size:14px; }
+  .slot-picked-card .meta .team { font-size:11px; color:var(--muted); }
+  .slot-picked-card .meta .fp { margin-top:auto; font-family:'Barlow Condensed',sans-serif; font-weight:800; color:var(--accent); }
+
   /* ── SPINNING ANIMATION ── */
   @keyframes spin-flash {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+    0%, 100% { opacity: 1; transform: translateY(0); }
+    50% { opacity: 0.35; transform: translateY(-4px); }
   }
-  .spinning { animation: spin-flash 0.15s ease 6; }
+  .spinning { animation: spin-flash 0.18s ease 8; }
 
   /* ── SCORE BAR ── */
   .score-bar {
@@ -607,6 +1070,16 @@
     min-width: 50px;
     text-align: right;
   }
+  /* ── TEAM SUMMARY GRID (score + roster juntos) ── */
+  .team-summary {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .team-summary .picked-roster {
+    width: 100%;
+    max-width: 1100px;
+  }
 </style>
 </head>
 <body>
@@ -622,28 +1095,27 @@
   <!-- Preenchido via JS -->
 </div>
 
+
 <div class="main">
 
-  <!-- Score em progresso -->
-  <div class="score-bar" id="score-bar" style="display:none">
-    <span class="score-label">Firepower</span>
-    <div class="score-track"><div class="score-fill" id="score-fill" style="width:0%"></div></div>
-    <span class="score-value" id="score-value">—</span>
-    <span class="record-preview" id="record-preview">—</span>
-  </div>
-
-  <!-- Picked roster (aparece após 1ª pick) -->
-  <div class="picked-roster" id="picked-roster" style="display:none">
-    <div class="picked-title">Seu elenco</div>
-    <div class="picked-list" id="picked-list"></div>
+  <!-- Score + Picked roster juntos -->
+  <div class="team-summary" id="team-summary">
+    <div class="picked-roster" id="picked-roster" style="display:none">
+      <div class="picked-title">Seu elenco</div>
+      <div class="picked-list" id="picked-list"></div>
+    </div>
   </div>
 
   <!-- Spin section -->
   <div class="spin-section">
     <div class="pick-label" id="pick-label">Spin para sortear um time</div>
-    <div class="team-display" id="team-display">?</div>
-    <div id="stage-badge"></div>
-    <div>
+    <div class="team-roulette" id="team-roulette">
+      <div class="roulette-window">
+        <div class="roulette-track" id="roulette-track"></div>
+        <div class="roulette-marker"></div>
+      </div>
+    </div>
+    <div class="spin-controls">
       <button class="spin-btn" id="spin-btn" onclick="spin()">SPIN ◈</button>
       <button class="reroll-btn" id="reroll-btn" onclick="reroll()" disabled>
         ↺ Reroll
@@ -652,16 +1124,84 @@
     </div>
   </div>
 
+  <!-- Time sorteado (card destacado acima dos jogadores) -->
+  <div class="active-team-card" id="active-team-card" style="display:none"></div>
+
   <!-- Players grid -->
   <div class="players-grid" id="players-grid" style="display:none"></div>
+  
 
+</div>
+
+<!-- Swiss Selection Screen -->
+<div id="swiss-selection-screen" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:600; overflow-y:auto;">
+  <div style="max-width:1200px; margin:0 auto; padding:40px 20px;">
+    <div style="text-align:center; margin-bottom:40px;">
+      <h2 style="font-family:'Barlow Condensed'; font-size:32px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Fase Swiss</h2>
+      <p style="color:var(--muted); font-size:14px;">Escolha se sua equipe draftada entra no lugar da Monte ou da B8</p>
+    </div>
+
+    <div id="swiss-teams-list" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:32px;">
+      <!-- Preenchido via JS -->
+    </div>
+
+    <div style="text-align:center;">
+      <p id="swiss-selection-status" style="color:var(--muted); font-size:12px; margin-bottom:16px;">Selecione Monte ou B8 para continuar...</p>
+      <button id="swiss-start-btn" onclick="startSwissSimulation()" disabled style="background:var(--accent); color:black; border:none; padding:12px 32px; border-radius:6px; font-family:'Barlow Condensed'; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; font-size:14px; opacity:0.5; cursor:not-allowed;">
+        ▶ INICIAR SIMULAÇÃO
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Swiss Results Screen -->
+<div id="swiss-results-screen" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:600; overflow-y:auto;">
+  <div style="max-width:1200px; margin:0 auto; padding:40px 20px;">
+    <div style="text-align:center; margin-bottom:40px;">
+      <h2 style="font-family:'Barlow Condensed'; font-size:32px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Resultados Swiss</h2>
+    </div>
+
+    <div id="swiss-standings-table" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden;">
+      <!-- Tabela preenchida via JS -->
+    </div>
+
+    <div style="text-align:center; margin-top:32px;">
+      <button onclick="continueToPLayoffs()" style="background:var(--accent); color:black; border:none; padding:12px 32px; border-radius:6px; font-family:'Barlow Condensed'; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; font-size:14px;">
+        ▶ IR PARA PLAYOFFS
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Playoffs Results Screen -->
+<div id="playoffs-results-screen" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:600; overflow-y:auto;">
+  <div style="max-width:1200px; margin:0 auto; padding:40px 20px;">
+    <div style="text-align:center; margin-bottom:40px;">
+      <h2 style="font-family:'Barlow Condensed'; font-size:32px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Playoffs</h2>
+    </div>
+
+    <div id="playoffs-bracket" style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:24px;">
+      <!-- Bracket preenchido via JS -->
+    </div>
+
+    <div style="text-align:center; margin-top:32px;">
+      <button onclick="resetGame()" style="background:var(--accent); color:black; border:none; padding:12px 32px; border-radius:6px; font-family:'Barlow Condensed'; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; font-size:14px;">
+        ↺ JOGAR NOVAMENTE
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Result screen -->
 <div id="result-screen">
   <div class="result-card">
-    <div class="result-record" id="res-record">—</div>
-    <div class="result-label">Seu resultado na temporada</div>
+    <div class="result-header">
+      <div>
+        <div class="result-record" id="res-record">—</div>
+        <div class="result-label">Seu resultado na temporada</div>
+      </div>
+      <button class="result-minimize-btn" onclick="toggleMinimizeResult()" title="Minimizar"></button>
+    </div>
     <div class="result-warning" id="res-warning" style="display:none"></div>
     <div class="result-roster" id="res-roster"></div>
     <div class="result-score-detail" id="res-detail"></div>
@@ -670,6 +1210,8 @@
 </div>
 
 <script src="data.js"></script>
+<script src="player-map-stats.js"></script>
+<script src="tournament-simulator.js"></script>
 <script>
 let state = {
   pick: 1,           // 1..5
@@ -679,7 +1221,11 @@ let state = {
   rerolledThisRound: false,
   pickedPlayers: [],
   draftedThisRound: false,
-  gameOver: false
+  gameOver: false,
+  selectedSwissReplacement: null,  // Equipe selecionada para substituir
+  swissTeams: null,               // Times da simulação Swiss
+  swissData: null,                // Dados da simulação Swiss
+  playoffsData: null              // Dados dos playoffs
 };
 
 const SLOTS_CONFIG = [
@@ -700,13 +1246,21 @@ function getRoleEmoji(role) {
   return m[role] || "•";
 }
 
+function displayRoles(player) {
+  return formatPlayerRoles(player);
+}
+
+function displayRoleEmoji(player) {
+  return getPlayerRoles(player).map(getRoleEmoji).join("");
+}
+
 function renderSlotsBar() {
   const bar = document.getElementById("slots-bar");
   bar.innerHTML = SLOTS_CONFIG.map((s, i) => {
     const p = state.pickedPlayers[i];
     if (p) {
       return `<div class="slot-pill filled">
-        <div class="slot-role">${p.role}</div>
+        <div class="slot-role">${displayRoles(p)}</div>
         <div class="slot-name">${p.nick}</div>
         <div class="slot-fp">FP ${p.firepower}</div>
       </div>`;
@@ -720,35 +1274,99 @@ function renderSlotsBar() {
 }
 
 function renderPickedRoster() {
+  const pickedEl = document.getElementById("picked-roster");
+  const list = document.getElementById("picked-list");
+  const slots = 5;
   if (state.pickedPlayers.length === 0) {
-    document.getElementById("picked-roster").style.display = "none";
+    pickedEl.style.display = "none";
+    list.innerHTML = "";
     return;
   }
-  document.getElementById("picked-roster").style.display = "";
-  const list = document.getElementById("picked-list");
-  list.innerHTML = state.pickedPlayers.map(p => `
-    <div class="picked-item">
-      <span style="font-size:14px">${getRoleEmoji(p.role)}</span>
-      <div>
-        <div class="pi-nick">${p.nick}</div>
-        <div style="font-size:10px;color:var(--muted)">${p.role}</div>
-      </div>
-      <span class="pi-fp">${p.firepower}</span>
+  pickedEl.style.display = "";
+
+  // Build score bar card (spans full width at top)
+  const score = calcTeamScore(state.pickedPlayers);
+  const pct = Math.min(100, score);
+  const scoreBarHtml = `
+    <div class="score-bar-card">
+      <span class="score-label">Firepower Médio</span>
+      <div class="score-track"><div class="score-fill" style="width:${pct}%"></div></div>
+      <span class="score-value">${score}</span>
+      <span class="record-preview">${scoreToRecord(score)}</span>
     </div>
-  `).join("");
+  `;
+
+  // Render picked players as full player-card tiles to match the player grid
+  const playersHtml = state.pickedPlayers.map(p => {
+    const roleColor = getRoleColor(getPrimaryRole(p));
+    const fpPct = p.firepower;
+    const photoContent = p.photo && !p.photo.includes('placeholder')
+      ? `<div class="player-photo"><img src="${p.photo}" alt="${p.nick}" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${displayRoleEmoji(p)}</div>'"></div>`
+      : `<div class="player-photo-placeholder" style="font-size:40px">${displayRoleEmoji(p)}</div>`;
+
+    return `
+      <div class="player-card drafted">
+        ${photoContent}
+        <div class="player-info">
+          <div class="player-nick">${p.nick}</div>
+          <div class="player-name">${p.team} · ${displayRoles(p)}</div>
+          <div class="fp-row"><span class="fp-label">Firepower</span><span class="fp-value">${p.firepower}</span></div>
+          <div class="fp-bar"><div class="fp-bar-fill" style="width:${fpPct}%;background:${roleColor}"></div></div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Add empty placeholders for remaining slots so layout stays consistent
+  let placeholdersHtml = "";
+  const placeholders = Math.max(0, slots - state.pickedPlayers.length);
+  for (let i = 0; i < placeholders; i++) {
+    placeholdersHtml += `
+      <div class="player-card" style="opacity:0.28">
+        <div class="player-photo-placeholder" style="font-size:28px">—</div>
+        <div class="player-info">
+          <div class="player-nick">Vago</div>
+          <div class="player-name" style="color:var(--muted)">Aguardando pick</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Combine: score bar (full width) + players + placeholders
+  list.innerHTML = scoreBarHtml + playersHtml + placeholdersHtml;
+}
+
+function renderPicksRow() {
+  const row = document.getElementById('picks-row');
+  const slots = 5;
+  if (!row) return;
+  if (state.pickedPlayers.length === 0) {
+    row.style.display = 'none';
+    return;
+  }
+  row.style.display = 'grid';
+  row.innerHTML = Array.from({length: slots}).map((_, i) => {
+    const p = state.pickedPlayers[i];
+    if (!p) {
+      return `<div></div>`;
+    }
+    const photo = p.photo && !p.photo.includes('placeholder') ? `<div class="pic"><img src="${p.photo}" alt="${p.nick}"></div>` : `<div class="pic"><div style="width:100%;height:100%;background:var(--surface);display:flex;align-items:center;justify-content:center">${displayRoleEmoji(p)}</div></div>`;
+    return `
+      <div class="slot-picked-card">
+        ${photo}
+        <div class="meta">
+          <div class="nick">${p.nick}</div>
+          <div class="team">${p.team}</div>
+          <div class="fp">FP ${p.firepower}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderScoreBar() {
-  if (state.pickedPlayers.length === 0) {
-    document.getElementById("score-bar").style.display = "none";
-    return;
-  }
-  document.getElementById("score-bar").style.display = "";
-  const score = calcTeamScore(state.pickedPlayers);
-  const pct = Math.min(100, score);
-  document.getElementById("score-fill").style.width = pct + "%";
-  document.getElementById("score-value").textContent = score;
-  document.getElementById("record-preview").textContent = scoreToRecord(score);
+  // Score é agora renderizado dentro de renderPickedRoster()
+  // Mas mantemos a atualização do pick counter no header
   document.getElementById("hdr-pick").textContent = state.pick;
 }
 
@@ -758,50 +1376,125 @@ function randomTeam() {
   return available[Math.floor(Math.random() * available.length)];
 }
 
+function shuffledTeams(teams) {
+  const copy = [...teams];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function getSwissBaseTeams() {
+  const swissOrder = [
+    "vitality", "navi", "falcons", "mongolz",
+    "parivision", "aurora", "furia", "mouz",
+    "fut", "spirit", "g2", "betboom",
+    "9z", "monte", "b8", "legacy"
+  ];
+  return swissOrder.map(id => TEAMS.find(team => team.id === id)).filter(Boolean);
+}
+
+function stageBadgeHtml(team) {
+  const bc = { Legends: "badge-legends", Challengers: "badge-challengers", Contenders: "badge-contenders" };
+  return `<span class="team-stage-badge ${bc[team.stage] || ""}">${team.stage} · ${team.region}</span>`;
+}
+
+function teamLogoImg(team, className) {
+  if (!team.logo) return "";
+  const cls = className ? ` class="${className}"` : "";
+  return `<img${cls} src="${team.logo}" alt="${team.name}" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">`;
+}
+
+function renderActiveTeamCard(team) {
+  const card = document.getElementById("active-team-card");
+  if (!team) {
+    card.style.display = "none";
+    card.innerHTML = "";
+    return;
+  }
+  card.style.display = "flex";
+  card.innerHTML = `
+    <div class="at-logo-wrap">${teamLogoImg(team, "at-logo")}</div>
+    <div class="at-body">
+      <div class="at-label">Time sorteado · Pick ${state.pick} de 5</div>
+      <div class="at-name">${team.name}</div>
+      <div class="at-meta">${stageBadgeHtml(team)}</div>
+    </div>
+    <div class="at-pick-hint">Escolha 1 jogador abaixo</div>
+  `;
+  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function showTeamOnDisplay(team) {
+  renderActiveTeamCard(team);
+}
+
 function spin() {
   if (state.gameOver) return;
 
   const spinBtn = document.getElementById("spin-btn");
-  const teamDisplay = document.getElementById("team-display");
-  const grid = document.getElementById("players-grid");
+  const roulette = document.getElementById("team-roulette");
+  const track = document.getElementById("roulette-track");
 
   spinBtn.disabled = true;
   document.getElementById("reroll-btn").disabled = true;
   state.draftedThisRound = false;
   state.rerolledThisRound = false;
+  renderActiveTeamCard(null);
 
-  // Animação de spin
-  let count = 0;
-  const interval = setInterval(() => {
-    const t = randomTeam();
-    if (t) teamDisplay.textContent = t.name;
-    count++;
-    if (count >= 8) {
-      clearInterval(interval);
-      const team = randomTeam();
-      if (!team) return;
-      state.currentTeam = team;
-      teamDisplay.textContent = team.name;
-      teamDisplay.classList.add("spinning");
-      setTimeout(() => teamDisplay.classList.remove("spinning"), 500);
+  const available = TEAMS.filter(t => !state.usedTeams.includes(t.id));
+  if (available.length === 0) return;
 
-      // Badge stage
-      const badge = document.getElementById("stage-badge");
-      const bc = { Legends: "badge-legends", Challengers: "badge-challengers", Contenders: "badge-contenders" };
-      badge.innerHTML = `<span class="team-stage-badge ${bc[team.stage] || ''}">${team.stage} · ${team.region}</span>`;
+  const ITEM_WIDTH = 220;
+  const WINDOW_WIDTH = roulette.querySelector(".roulette-window").clientWidth || 920;
+  const loops = 7;
 
-      document.getElementById("pick-label").textContent = `Pick ${state.pick} de 5 — Escolha 1 jogador`;
+  const repeated = [];
+  for (let i = 0; i < loops; i++) repeated.push(...shuffledTeams(available));
 
-      // Habilita reroll se ainda tem
-      if (state.rerollsLeft > 0 && !state.rerolledThisRound) {
-        const rb = document.getElementById("reroll-btn");
-        rb.disabled = false;
-        document.getElementById("reroll-count").textContent = `(${state.rerollsLeft} disponível)`;
-      }
+  track.innerHTML = repeated.map(t => `
+    <div class="roulette-item" data-team-id="${t.id}">
+      ${teamLogoImg(t, "")}
+      <div class="rname">${t.name}</div>
+    </div>
+  `).join("");
+  roulette.style.display = "";
 
-      renderPlayers(team);
+  const randomOffset = Math.floor(Math.random() * available.length);
+  const targetIndex = available.length * (loops - 2) + randomOffset;
+  const chosen = repeated[targetIndex];
+
+  const centerOffset = (WINDOW_WIDTH - ITEM_WIDTH) / 2;
+  const finalTranslate = -(targetIndex * ITEM_WIDTH - centerOffset);
+
+  track.style.transition = "none";
+  track.style.transform = "translateX(0px)";
+  void track.offsetWidth;
+
+  const durationMs = 4200;
+  track.style.transition = `transform ${durationMs}ms cubic-bezier(0.12, 0.85, 0.22, 1)`;
+  track.style.transform = `translateX(${finalTranslate}px)`;
+
+  const onEnd = (e) => {
+    if (e.propertyName !== "transform") return;
+    track.removeEventListener("transitionend", onEnd);
+
+    Array.from(track.children).forEach(el => el.classList.remove("selected"));
+    const sel = track.children[targetIndex];
+    if (sel) sel.classList.add("selected");
+
+    state.currentTeam = chosen;
+    renderActiveTeamCard(chosen);
+    document.getElementById("pick-label").textContent = `Pick ${state.pick} de 5 — Escolha 1 jogador`;
+
+    if (state.rerollsLeft > 0 && !state.rerolledThisRound) {
+      document.getElementById("reroll-btn").disabled = false;
+      document.getElementById("reroll-count").textContent = `(${state.rerollsLeft} disponível)`;
     }
-  }, 80);
+    renderPlayers(chosen);
+  };
+  track.addEventListener("transitionend", onEnd);
 }
 
 function reroll() {
@@ -809,43 +1502,31 @@ function reroll() {
   state.rerollsLeft--;
   state.rerolledThisRound = true;
   document.getElementById("reroll-btn").disabled = true;
-  document.getElementById("reroll-count").textContent = `(0 disponível)`;
+  document.getElementById("reroll-count").textContent = `(${state.rerollsLeft} disponível)`;
 
-  const available = TEAMS.filter(t => !state.usedTeams.includes(t.id) && t.id !== state.currentTeam.id);
-  if (available.length === 0) return;
-  const team = available[Math.floor(Math.random() * available.length)];
-  state.currentTeam = team;
-  document.getElementById("team-display").textContent = team.name;
-
-  const bc = { Legends: "badge-legends", Challengers: "badge-challengers", Contenders: "badge-contenders" };
-  document.getElementById("stage-badge").innerHTML =
-    `<span class="team-stage-badge ${bc[team.stage] || ''}">${team.stage} · ${team.region}</span>`;
-
-  renderPlayers(team);
+  state.currentTeam = null;
+  renderActiveTeamCard(null);
+  document.getElementById("players-grid").style.display = "none";
+  document.getElementById("pick-label").textContent = `Spin para o Pick ${state.pick} de 5`;
+  document.getElementById("spin-btn").disabled = false;
 }
 
 function renderPlayers(team) {
   const grid = document.getElementById("players-grid");
   grid.style.display = "grid";
   grid.innerHTML = team.players.map((p, idx) => {
-    const roleColor = getRoleColor(p.role);
+    const primaryRole = getPrimaryRole(p);
+    const roleColor = getRoleColor(primaryRole);
+    const roleLabel = displayRoles(p);
     const fpPct = p.firepower;
     const photoContent = p.photo && !p.photo.includes("placeholder")
-      ? `<img src="${p.photo}" alt="${p.nick}" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${getRoleEmoji(p.role)}</div>'">`
-      : `<div class="player-photo-placeholder" style="font-size:48px">${getRoleEmoji(p.role)}</div>`;
+      ? `<img src="${p.photo}" alt="${p.nick}" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${displayRoleEmoji(p)}</div>'">`
+      : `<div class="player-photo-placeholder" style="font-size:48px">${displayRoleEmoji(p)}</div>`;
 
-    // Bolinhas de slot: uma por slot disponível (picks restantes)
-    const remainingSlots = 5 - state.pickedPlayers.length;
-    const dotHtml = Array.from({length: remainingSlots}).map((_, si) => {
-      const slotNum = state.pickedPlayers.length + si + 1;
-      return `<div class="slot-dot" data-role="${p.role}" onclick="pickPlayer(${idx}, ${slotNum}, event)">
-        <span class="tooltip">Pick ${slotNum}</span>
-      </div>`;
-    }).join("");
-
-    return `<div class="player-card available" id="pcard-${idx}">
+    // Clique no card seleciona o jogador (apenas próximo slot)
+    return `<div class="player-card available" id="pcard-${idx}" onclick="pickPlayer(${idx}, ${state.pickedPlayers.length + 1}, event)">
       <div class="player-photo">${photoContent}
-        <div class="role-badge" style="color:${roleColor}">${getRoleEmoji(p.role)} ${p.role}</div>
+        <div class="role-badge" style="color:${roleColor}">${displayRoleEmoji(p)} ${roleLabel}</div>
       </div>
       <div class="player-info">
         <div class="player-nick">${p.nick}</div>
@@ -855,7 +1536,6 @@ function renderPlayers(team) {
           <span class="fp-value">${p.firepower}</span>
         </div>
         <div class="fp-bar"><div class="fp-bar-fill" style="width:${fpPct}%;background:${roleColor}"></div></div>
-        <div class="slot-dots" id="dots-${idx}">${dotHtml}</div>
       </div>
     </div>`;
   }).join("");
@@ -890,6 +1570,7 @@ function pickPlayer(playerIdx, slotNum, e) {
   renderSlotsBar();
   renderPickedRoster();
   renderScoreBar();
+  renderPicksRow();
 
   if (state.pickedPlayers.length >= 5) {
     setTimeout(showResult, 900);
@@ -903,10 +1584,10 @@ function pickPlayer(playerIdx, slotNum, e) {
   setTimeout(() => {
     document.getElementById("spin-btn").disabled = false;
     document.getElementById("pick-label").textContent = `Spin para o Pick ${state.pick} de 5`;
-    document.getElementById("team-display").textContent = "?";
-    document.getElementById("stage-badge").innerHTML = "";
+    renderActiveTeamCard(null);
+    state.currentTeam = null;
     document.getElementById("players-grid").style.display = "none";
-  }, 1200);
+  }, 700);
 }
 
 function showResult() {
@@ -914,17 +1595,11 @@ function showResult() {
   const score = calcTeamScore(state.pickedPlayers);
   const record = scoreToRecord(score);
 
-  document.getElementById("res-record").textContent = record;
+  // Mostrar mensagem de "Simulando" na tela do resultado temporariamente
+  document.getElementById("res-record").textContent = "Simulando...";
 
-  // Warnings de composição
-  const roleCounts = {};
-  state.pickedPlayers.forEach(p => { roleCounts[p.role] = (roleCounts[p.role] || 0) + 1; });
-  const warnings = [];
-  if ((roleCounts["AWPer"] || 0) > 1) warnings.push(`${roleCounts["AWPer"]} AWPers — penalidade aplicada`);
-  if ((roleCounts["IGL"] || 0) > 1) warnings.push(`${roleCounts["IGL"]} IGLs — penalidade aplicada`);
-  if ((roleCounts["Lurker"] || 0) > 1) warnings.push(`${roleCounts["Lurker"]} Lurkers — penalidade aplicada`);
-  if ((roleCounts["Entry"] || 0) > 2) warnings.push(`${roleCounts["Entry"]} Entries — penalidade aplicada`);
-  if ((roleCounts["Support"] || 0) > 2) warnings.push(`${roleCounts["Support"]} Supports — penalidade aplicada`);
+  // Warnings de composição (considera atribuição ideal de roles duplas)
+  const warnings = getCompositionWarnings(state.pickedPlayers);
   const warnEl = document.getElementById("res-warning");
   if (warnings.length) {
     warnEl.style.display = "";
@@ -933,37 +1608,491 @@ function showResult() {
     warnEl.style.display = "none";
   }
 
-  // Roster
+  // Roster em grid - usar mesma estrutura de player-card
   const avgFP = Math.round(state.pickedPlayers.reduce((s,p) => s + p.firepower, 0) / state.pickedPlayers.length);
-  document.getElementById("res-roster").innerHTML = state.pickedPlayers.map(p => `
-    <div class="result-player">
-      <div class="result-player-left">
-        <span style="font-size:18px">${getRoleEmoji(p.role)}</span>
-        <div>
-          <div class="result-nick" style="color:${getRoleColor(p.role)}">${p.nick}</div>
-          <div style="font-size:10px;color:var(--muted)">${p.team}</div>
+  const rostersHtml = state.pickedPlayers.map(p => {
+    const roleColor = getRoleColor(getPrimaryRole(p));
+    const fpPct = p.firepower;
+    const photoContent = p.photo && !p.photo.includes('placeholder')
+      ? `<div class="player-photo"><img src="${p.photo}" alt="${p.nick}" onerror="this.parentElement.innerHTML='<div class=\\'player-photo-placeholder\\'>${displayRoleEmoji(p)}</div>'"></div>`
+      : `<div class="player-photo-placeholder" style="font-size:40px">${displayRoleEmoji(p)}</div>`;
+
+    return `
+      <div class="player-card drafted">
+        ${photoContent}
+        <div class="player-info">
+          <div class="player-nick">${p.nick}</div>
+          <div class="player-name">${p.team} · ${displayRoles(p)}</div>
+          <div class="fp-row"><span class="fp-label">Firepower</span><span class="fp-value">${p.firepower}</span></div>
+          <div class="fp-bar"><div class="fp-bar-fill" style="width:${fpPct}%;background:${roleColor}"></div></div>
         </div>
-        <span class="result-role-tag">${p.role}</span>
       </div>
-      <span class="result-fp">${p.firepower}</span>
-    </div>
-  `).join("");
+    `;
+  }).join("");
+  document.getElementById("res-roster").innerHTML = rostersHtml;
 
   document.getElementById("res-detail").innerHTML =
     `Firepower médio: <strong style="color:var(--accent)">${avgFP}</strong> · Score final: <strong style="color:var(--accent)">${score}</strong>`;
 
+  // Mostrar tela de resultado
   document.getElementById("result-screen").classList.add("active");
+
+  // Executar simulação de campeonato com delay para não travar
+  setTimeout(() => {
+    simulateTournamentForResult();
+  }, 500);
+}
+
+
+async function simulateTournamentForResult() {
+  try {
+    // Criar equipe draftada
+    const draftedTeam = {
+      id: "drafted-team",
+      name: "Sua Equipe",
+      players: state.pickedPlayers,
+      stage: "Custom"
+    };
+
+    const teams16 = getSwissBaseTeams();
+
+    // Calcular Power Score para todos
+    [draftedTeam, ...teams16].forEach(team => {
+      if (!team.mapStrengths) {
+        const mapStrengths = calculateTeamAllMapStrengths(team);
+        team.mapStrengths = mapStrengths;
+        team.powerScore = calculateTeamPowerScore(team, mapStrengths);
+      }
+    });
+
+    // Salvar as 16 equipes
+    state.swissTeams = teams16;
+
+    // Mostrar tela de seleção do Swiss
+    showSwissSelectionScreen(teams16);
+  } catch (err) {
+    console.error("Erro na simulação:", err);
+  }
+}
+
+function showSwissSelectionScreen(teams16) {
+  // Esconder result screen
+  document.getElementById("result-screen").classList.remove("active");
+  document.getElementById("result-screen").style.display = "none";
+
+  // Mostrar Swiss selection
+  const screen = document.getElementById("swiss-selection-screen");
+  const list = document.getElementById("swiss-teams-list");
+  const replacementIds = ["monte", "b8"];
+  state.selectedSwissReplacement = null;
+
+  list.innerHTML = teams16.map((team, idx) => {
+    const canReplace = replacementIds.includes(team.id);
+    return `
+      <div class="swiss-team-card ${canReplace ? '' : 'disabled'}" 
+           onclick="toggleSwissTeamSelection(${idx})" 
+           data-idx="${idx}"
+           style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:16px; cursor:${canReplace ? 'pointer' : 'not-allowed'}; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:12px; opacity:${canReplace ? '1' : '0.45'};">
+        <div style="text-align:center;">
+          <div style="width:72px; height:72px; display:flex; align-items:center; justify-content:center; margin:0 auto 10px;">
+            ${teamLogoImg(team, "swiss-selection-logo") || `<div style="font-family:'Barlow Condensed'; font-size:24px; font-weight:700; color:var(--accent);">${team.name.slice(0, 2).toUpperCase()}</div>`}
+          </div>
+          <div style="font-family:'Barlow Condensed'; font-size:14px; font-weight:700; color:${canReplace ? 'var(--accent)' : 'var(--text)'}; text-transform:uppercase; letter-spacing:1px;">
+            ${team.name}
+          </div>
+          <div style="font-size:11px; color:var(--muted); margin-top:4px;">
+            Power: ${team.powerScore || 75}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  updateSwissSelectionUI();
+  screen.style.display = "block";
+}
+
+function toggleSwissTeamSelection(idx) {
+  const team = state.swissTeams[idx];
+  if (!team || !["monte", "b8"].includes(team.id)) return;
+
+  state.selectedSwissReplacement =
+    state.selectedSwissReplacement && state.selectedSwissReplacement.id === team.id
+      ? null
+      : team;
+
+  updateSwissSelectionUI();
+}
+
+function updateSwissSelectionUI() {
+  const selectedId = state.selectedSwissReplacement && state.selectedSwissReplacement.id;
+  const btn = document.getElementById("swiss-start-btn");
+  const status = document.getElementById("swiss-selection-status");
+
+  document.querySelectorAll(".swiss-team-card").forEach(card => {
+    const idx = parseInt(card.dataset.idx, 10);
+    const team = state.swissTeams[idx];
+    if (!team) return;
+
+    if (selectedId === team.id) {
+      card.style.borderColor = "var(--accent)";
+      card.style.background = "rgba(232,184,75,0.1)";
+    } else {
+      card.style.borderColor = "var(--border)";
+      card.style.background = "var(--surface2)";
+    }
+  });
+
+  if (!state.selectedSwissReplacement) {
+    status.textContent = "Selecione Monte ou B8 para continuar...";
+    btn.disabled = true;
+    btn.style.opacity = "0.5";
+    btn.style.cursor = "not-allowed";
+    return;
+  }
+
+  status.textContent = `Sua Equipe substituira ${state.selectedSwissReplacement.name}. Pronto para comecar.`;
+  btn.disabled = false;
+  btn.style.opacity = "1";
+  btn.style.cursor = "pointer";
+}
+
+async function startSwissSimulation() {
+  if (!state.selectedSwissReplacement) return;
+
+  const draftedTeam = {
+    id: "drafted-team",
+    name: "Sua Equipe",
+    players: state.pickedPlayers,
+    stage: "Custom"
+  };
+
+  const mapStrengths = calculateTeamAllMapStrengths(draftedTeam);
+  draftedTeam.mapStrengths = mapStrengths;
+  draftedTeam.powerScore = calculateTeamPowerScore(draftedTeam, mapStrengths);
+
+  const teams16 = state.swissTeams.map(team =>
+    team.id === state.selectedSwissReplacement.id ? draftedTeam : team
+  );
+
+    document.getElementById("swiss-selection-screen").style.display = "none";
+
+    const screen = document.getElementById("swiss-results-screen");
+    const table = document.getElementById("swiss-standings-table");
+    table.innerHTML = `<div style="padding:20px; text-align:center; color:var(--muted);">Simulando Swiss...</div>`;
+    screen.style.display = "block";
+
+    await new Promise(r => setTimeout(r, 100));
+
+    const swiss = new SwissGroup(teams16);
+    
+    // Executar rodadas até terminar (máximo 5)
+    let roundNum = 1;
+    while (!swiss.isFinished() && roundNum <= 5) {
+      await swiss.executeRound(roundNum);
+      await new Promise(r => setTimeout(r, 80));
+      roundNum++;
+    }
+
+    const { classified, standings } = swiss.getClassification();
+    state.swissData = { swiss, classified, standings };
+    displaySwissStandings(standings);
+}
+
+function displaySwissStandings(standings) {
+  const table = document.getElementById("swiss-standings-table");
+
+  // Ordenar standings: primeiro por wins (decrescente), depois por losses (crescente), depois por powerScore
+  const sorted = [...standings].sort((a, b) => {
+    if (a.wins !== b.wins) return b.wins - a.wins;
+    if (a.losses !== b.losses) return a.losses - b.losses;
+    const aPower = a.team.powerScore || 0;
+    const bPower = b.team.powerScore || 0;
+    return bPower - aPower;
+  });
+
+  // Cores por posição
+  function getRowColor(pos) {
+    if (pos <= 2) return '#003300';
+    if (pos <= 5) return '#1F2B08';
+    if (pos <= 8) return '#332B00';
+    return '#2E0505';
+  }
+
+  // Ícone por posição
+  function getPosIcon(pos, standing) {
+    if (pos <= 8) return '✅';
+    return '❌';
+  }
+
+  let html = `
+    <div style="overflow-x:auto;">
+      <div style="margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:8px; padding:8px 12px; margin-bottom:8px; font-family:'Barlow Condensed'; font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--accent);">
+          <span>🏆 Classificação Final · Fase Suíça</span>
+          <span style="font-size:11px; color:var(--muted); font-weight:400;">(16 times)</span>
+        </div>
+        <table style="width:100%; border-collapse:collapse; border-radius:8px; overflow:hidden;">
+          <thead>
+            <tr style="background:rgba(232,184,75,0.12); border-bottom:2px solid var(--border);">
+              <th style="padding:10px 14px; text-align:center; font-family:'Barlow Condensed'; font-size:12px; text-transform:uppercase; color:var(--accent); width:50px;">#</th>
+              <th style="padding:10px 14px; text-align:left; font-family:'Barlow Condensed'; font-size:12px; text-transform:uppercase; color:var(--accent);">Time</th>
+              <th style="padding:10px 14px; text-align:center; font-family:'Barlow Condensed'; font-size:12px; text-transform:uppercase; color:var(--accent); width:90px;">Record</th>
+              <th style="padding:10px 14px; text-align:center; font-family:'Barlow Condensed'; font-size:12px; text-transform:uppercase; color:var(--accent); width:80px;">Power</th>
+              <th style="padding:10px 14px; text-align:center; font-family:'Barlow Condensed'; font-size:12px; text-transform:uppercase; color:var(--accent); width:60px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+  `;
+
+  sorted.forEach((standing, idx) => {
+    const pos = idx + 1;
+    const rowColor = getRowColor(pos);
+    const isDrafted = standing.team.id === "drafted-team";
+    const isClassified = pos <= 8;
+    const posIcon = getPosIcon(pos, standing);
+    
+    html += `
+      <tr style="background:${rowColor}; border-bottom:1px solid rgba(255,255,255,0.06); ${isDrafted ? 'outline: 2px solid var(--accent); outline-offset: -2px;' : ''}">
+        <td style="padding:12px 14px; text-align:center; color:#fff; font-family:'Barlow Condensed'; font-size:18px; font-weight:900;">
+          ${pos}
+        </td>
+        <td style="padding:12px 14px; display:flex; align-items:center; gap:12px;">
+          <div style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(0,0,0,0.25); border-radius:6px; padding:3px;">
+            ${standing.team.logo ? `<img src="${standing.team.logo}" style="max-width:28px; max-height:28px; object-fit:contain;" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : ''}
+          </div>
+          <span style="color:#fff; font-weight:${isDrafted ? '700' : '500'}; font-size:14px; letter-spacing:0.3px;">
+            ${standing.team.name}
+            ${isDrafted ? '<span style="color:var(--accent); margin-left:6px;">⭐</span>' : ''}
+          </span>
+        </td>
+        <td style="padding:12px 14px; text-align:center;">
+          <span style="font-family:'Barlow Condensed'; font-size:16px; font-weight:700; color:#fff;">
+            ${standing.wins}-${standing.losses}
+          </span>
+        </td>
+        <td style="padding:12px 14px; text-align:center;">
+          <span style="font-family:'Barlow Condensed'; font-size:15px; font-weight:700; color:#e8b84b;">
+            ${standing.team.powerScore || 75}
+          </span>
+        </td>
+        <td style="padding:12px 14px; text-align:center; font-size:16px;">
+          ${posIcon}
+        </td>
+      </tr>
+    `;
+  });
+
+  html += `
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  table.innerHTML = html;
+}
+
+function continueToPLayoffs() {
+  if (!state.swissData) return;
+
+  const { classified, standings } = state.swissData;
+  const seededTeams = classified.slice(0, 8).map((s, idx) => ({
+    team: s.team,
+    seed: idx + 1,
+    standing: s
+  }));
+
+  // Rodar playoffs
+  simulatePlayoffs(seededTeams);
+}
+
+async function simulatePlayoffs(seededTeams) {
+  document.getElementById("swiss-results-screen").style.display = "none";
+  
+  const screen = document.getElementById("playoffs-results-screen");
+  const bracket = document.getElementById("playoffs-bracket");
+  bracket.innerHTML = `<div style="text-align:center; color:var(--muted);">Simulando Playoffs...</div>`;
+  screen.style.display = "block";
+
+  // Delay para não travar a UI
+  await new Promise(r => setTimeout(r, 100));
+
+  // Criar playoff bracket
+  const playoffs = new PlayoffsBracket(seededTeams);
+
+  // Quartas
+  const quarters = await playoffs.executeQuarters();
+  await new Promise(r => setTimeout(r, 100));
+
+  // Semifinais
+  const semis = await playoffs.executeSemifinals();
+  await new Promise(r => setTimeout(r, 100));
+
+  // Final
+  const final = await playoffs.executeFinal();
+
+  state.playoffsData = { playoffs, quarters, semis, final };
+
+  // Exibir resultados
+  displayPlayoffsResults(quarters, semis, final, playoffs);
+}
+
+function renderTeamLogoImg(team) {
+  if (!team.logo) return '';
+  return `<img src="${team.logo}" style="max-width:36px; max-height:36px; object-fit:contain;" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'">`;
+}
+
+function displayPlayoffsResults(quarters, semis, final, playoffs) {
+  const bracket = document.getElementById("playoffs-bracket");
+
+  let html = `
+    <div style="margin-bottom:32px;">
+      <h3 style="font-family:'Barlow Condensed'; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">Quartas de Final</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">
+  `;
+
+  quarters.forEach(match => {
+    const winnerA = match.match.winner === "A";
+    const winnerB = match.match.winner === "B";
+    html += `
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; ${winnerA ? '' : 'opacity:0.5'};">
+          <div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); border-radius:6px; flex-shrink:0;">
+            ${renderTeamLogoImg(match.team1.team)}
+          </div>
+          <span style="flex:1; color:#fff; font-size:14px; font-weight:${winnerA ? '700' : '400'};">
+            ${match.team1.team.name}
+          </span>
+          <span style="font-family:'Barlow Condensed'; font-size:20px; font-weight:700; color:${winnerA ? 'var(--green)' : 'var(--muted)'};">
+            ${match.match.score[0]}
+          </span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; ${winnerB ? '' : 'opacity:0.5'};">
+          <div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); border-radius:6px; flex-shrink:0;">
+            ${renderTeamLogoImg(match.team2.team)}
+          </div>
+          <span style="flex:1; color:#fff; font-size:14px; font-weight:${winnerB ? '700' : '400'};">
+            ${match.team2.team.name}
+          </span>
+          <span style="font-family:'Barlow Condensed'; font-size:20px; font-weight:700; color:${winnerB ? 'var(--green)' : 'var(--muted)'};">
+            ${match.match.score[1]}
+          </span>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div></div>`;
+
+  html += `
+    <div style="margin-bottom:32px;">
+      <h3 style="font-family:'Barlow Condensed'; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">Semifinais</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">
+  `;
+
+  semis.forEach(match => {
+    const winnerA = match.match.winner === "A";
+    const winnerB = match.match.winner === "B";
+    html += `
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; ${winnerA ? '' : 'opacity:0.5'};">
+          <div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); border-radius:6px; flex-shrink:0;">
+            ${renderTeamLogoImg(match.team1.team)}
+          </div>
+          <span style="flex:1; color:#fff; font-size:14px; font-weight:${winnerA ? '700' : '400'};">
+            ${match.team1.team.name}
+          </span>
+          <span style="font-family:'Barlow Condensed'; font-size:20px; font-weight:700; color:${winnerA ? 'var(--green)' : 'var(--muted)'};">
+            ${match.match.score[0]}
+          </span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; ${winnerB ? '' : 'opacity:0.5'};">
+          <div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); border-radius:6px; flex-shrink:0;">
+            ${renderTeamLogoImg(match.team2.team)}
+          </div>
+          <span style="flex:1; color:#fff; font-size:14px; font-weight:${winnerB ? '700' : '400'};">
+            ${match.team2.team.name}
+          </span>
+          <span style="font-family:'Barlow Condensed'; font-size:20px; font-weight:700; color:${winnerB ? 'var(--green)' : 'var(--muted)'};">
+            ${match.match.score[1]}
+          </span>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div></div>`;
+
+  html += `
+    <div style="margin-bottom:32px;">
+      <h3 style="font-family:'Barlow Condensed'; color:var(--green); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; text-align:center;">🏆 GRANDE FINAL</h3>
+      <div style="background:linear-gradient(180deg, rgba(232,184,75,0.12), rgba(232,184,75,0.02)); border:2px solid var(--accent); border-radius:12px; padding:24px; max-width:450px; margin:0 auto;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; justify-content:center;">
+          <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.25); border-radius:8px; flex-shrink:0;">
+            ${renderTeamLogoImg(final.team1.team)}
+          </div>
+          <span style="flex:1; color:#fff; font-size:16px; font-weight:${final.match.winner === 'A' ? '700' : '400'}; text-align:center;">
+            ${final.team1.team.name}
+          </span>
+          <span style="font-family:'Barlow Condensed'; font-size:28px; font-weight:900; color:${final.match.winner === 'A' ? 'var(--green)' : 'var(--muted)'}; min-width:30px; text-align:center;">
+            ${final.match.score[0]}
+          </span>
+        </div>
+        <div style="text-align:center; padding:6px 0; color:var(--muted); font-size:13px; border-top:1px solid rgba(255,255,255,0.06); border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:12px;">
+          VS
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; justify-content:center;">
+          <div style="width:44px; height:44px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.25); border-radius:8px; flex-shrink:0;">
+            ${renderTeamLogoImg(final.team2.team)}
+          </div>
+          <span style="flex:1; color:#fff; font-size:16px; font-weight:${final.match.winner === 'B' ? '700' : '400'}; text-align:center;">
+            ${final.team2.team.name}
+          </span>
+          <span style="font-family:'Barlow Condensed'; font-size:28px; font-weight:900; color:${final.match.winner === 'B' ? 'var(--green)' : 'var(--muted)'}; min-width:30px; text-align:center;">
+            ${final.match.score[1]}
+          </span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const champion = final.match.winner === "A" ? final.team1 : final.team2;
+  html += `
+    <div style="text-align:center; margin:32px 0; padding:24px; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:12px;">
+      <div style="font-family:'Barlow Condensed'; font-size:12px; color:var(--green); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">🏆 Campeão</div>
+      <div style="display:flex; align-items:center; justify-content:center; gap:12px;">
+        <div style="width:48px; height:48px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); border-radius:8px; flex-shrink:0;">
+          ${champion.team.logo ? `<img src="${champion.team.logo}" style="max-width:40px; max-height:40px; object-fit:contain;" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : ''}
+        </div>
+        <div style="font-family:'Barlow Condensed'; font-size:28px; font-weight:700; color:var(--green);">
+          ${champion.team.name}
+        </div>
+      </div>
+    </div>
+  `;
+
+  bracket.innerHTML = html;
+}
+
+
+function toggleMinimizeResult() {
+  const screen = document.getElementById("result-screen");
+  screen.classList.toggle("minimized");
 }
 
 function resetGame() {
   state = {
     pick: 1, currentTeam: null, usedTeams: [],
     rerollsLeft: 1, rerolledThisRound: false,
-    pickedPlayers: [], draftedThisRound: false, gameOver: false
+    pickedPlayers: [], draftedThisRound: false, gameOver: false,
+    selectedSwissReplacement: null, swissTeams: null, swissData: null, playoffsData: null
   };
   document.getElementById("result-screen").classList.remove("active");
-  document.getElementById("team-display").textContent = "?";
-  document.getElementById("stage-badge").innerHTML = "";
+  document.getElementById("result-screen").classList.remove("minimized");
+  document.getElementById("swiss-selection-screen").style.display = "none";
+  document.getElementById("swiss-results-screen").style.display = "none";
+  document.getElementById("playoffs-results-screen").style.display = "none";
+  renderActiveTeamCard(null);
   document.getElementById("pick-label").textContent = "Spin para sortear um time";
   document.getElementById("players-grid").style.display = "none";
   document.getElementById("players-grid").innerHTML = "";
@@ -971,13 +2100,188 @@ function resetGame() {
   document.getElementById("reroll-btn").disabled = true;
   document.getElementById("reroll-count").textContent = "(1 disponível)";
   document.getElementById("hdr-pick").textContent = "1";
+  // hide top slots bar and render picks under players
+  const topSlots = document.getElementById('slots-bar');
+  if (topSlots) topSlots.style.display = 'none';
   renderSlotsBar();
   renderPickedRoster();
   renderScoreBar();
+  renderPicksRow();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TOURNAMENT SIMULATOR UI FUNCTIONS
+// ─────────────────────────────────────────────────────────────────
+
+function showTournamentSection() {
+  const section = document.getElementById("tournament-section");
+  if (section) section.style.display = "block";
+}
+
+function hideTournamentSection() {
+  const section = document.getElementById("tournament-section");
+  if (section) section.style.display = "none";
+}
+
+async function simulateTournamentUI() {
+  // Pegar 16 equipes (ou menos se não tiver)
+  let teams16 = getSwissBaseTeams();
+  
+  // Se a equipe draftada tem 5 jogadores, incluir ela
+  if (state.pickedPlayers.length === 5) {
+    const draftedTeam = {
+      id: "drafted-team",
+      name: "Sua Equipe",
+      players: state.pickedPlayers,
+      stage: "Custom"
+    };
+    teams16 = teams16.map(team => team.id === "monte" ? draftedTeam : team);
+  }
+
+  // Calcular Power Score para todos
+  teams16.forEach(team => {
+    if (!team.mapStrengths) {
+      const mapStrengths = calculateTeamAllMapStrengths(team);
+      team.mapStrengths = mapStrengths;
+      team.powerScore = calculateTeamPowerScore(team, mapStrengths);
+    }
+  });
+
+  // Executar simulação
+  const tournament = await simulateCompleteTournament(teams16);
+
+  // Mostrar resultados
+  displayTournamentResults(tournament);
+}
+
+function displayTournamentResults(tournament) {
+  const resultsDiv = document.getElementById("tournament-results");
+  const contentDiv = document.getElementById("results-content");
+
+  let html = `
+    <div class="tournament-match" style="border-left-color: var(--green)">
+      <div class="match-stage">🏆 Campeão</div>
+      <div class="team-name"><strong>${tournament.champion.team.name}</strong></div>
+      <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">
+        Seed #${tournament.champion.seed} · Record: ${tournament.champion.standing.wins}-${tournament.champion.standing.losses}
+      </div>
+    </div>
+  `;
+
+  // Semifinalistas
+  const sfTeams = tournament.playoffs.semifinals.flat().map(s => s.team);
+  if (sfTeams.length > 1) {
+    html += `<div style="margin-bottom: 12px;"><strong style="color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Semifinalistas</strong></div>`;
+    sfTeams.forEach(team => {
+      if (team.id !== tournament.champion.team.id) {
+        html += `<div class="tournament-match" style="border-left-color: var(--blue)">
+          <div class="team-name">${team.name}</div>
+        </div>`;
+      }
+    });
+  }
+
+  // Swiss Standings top 8
+  html += `<div style="margin: 20px 0 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent);"><strong>Fase Swiss - Top 8</strong></div>`;
+  html += `<table class="stats-table">
+    <tr style="background: rgba(232,184,75,0.08)">
+      <th>Time</th>
+      <th>Record</th>
+      <th>Power</th>
+    </tr>`;
+
+  tournament.swiss.standings.slice(0, 8).forEach((standing, idx) => {
+    html += `<tr>
+      <td>${idx + 1}. ${standing.team.name}</td>
+      <td>${standing.wins}-${standing.losses}</td>
+      <td><span class="stat-pct">${standing.team.powerScore}</span></td>
+    </tr>`;
+  });
+  html += `</table>`;
+
+  contentDiv.innerHTML = html;
+  resultsDiv.style.display = "block";
+}
+
+function hideTournamentResults() {
+  const resultsDiv = document.getElementById("tournament-results");
+  if (resultsDiv) resultsDiv.style.display = "none";
+}
+
+async function showMultipleSimulationsUI() {
+  // Pegar 16 equipes
+  let teams16 = getSwissBaseTeams();
+  
+  if (state.pickedPlayers.length === 5) {
+    const draftedTeam = {
+      id: "drafted-team",
+      name: "Sua Equipe",
+      players: state.pickedPlayers,
+      stage: "Custom"
+    };
+    teams16 = teams16.map(team => team.id === "monte" ? draftedTeam : team);
+  }
+
+  teams16.forEach(team => {
+    if (!team.mapStrengths) {
+      const mapStrengths = calculateTeamAllMapStrengths(team);
+      team.mapStrengths = mapStrengths;
+      team.powerScore = calculateTeamPowerScore(team, mapStrengths);
+    }
+  });
+
+  // Executar 1000 simulações
+  const stats = await runMultipleSimulations(teams16, 1000);
+
+  displaySimulationStats(stats);
+}
+
+function displaySimulationStats(result) {
+  const statsDiv = document.getElementById("simulation-stats");
+  const contentDiv = document.getElementById("stats-content");
+
+  let html = `<table class="stats-table">
+    <tr>
+      <th>Time</th>
+      <th>Playoffs</th>
+      <th>Semifinal</th>
+      <th>Final</th>
+      <th>Campeão</th>
+    </tr>`;
+
+  // Ordenar por chance de campeonato
+  const sorted = Object.entries(result.stats).sort((a, b) => 
+    parseFloat(b[1].championPct) - parseFloat(a[1].championPct)
+  );
+
+  sorted.forEach(([teamId, stats]) => {
+    html += `<tr>
+      <td>${stats.name}</td>
+      <td><span class="stat-pct">${stats.playoffsQualifiedPct}%</span></td>
+      <td><span class="stat-pct">${stats.semiFinalsPct}%</span></td>
+      <td><span class="stat-pct">${stats.finalsPct}%</span></td>
+      <td><span class="stat-pct">${stats.championPct}%</span></td>
+    </tr>`;
+  });
+
+  html += `</table>`;
+  html += `<p style="margin-top: 16px; font-size: 12px; color: var(--muted);">Baseado em ${result.iterations} simulações</p>`;
+
+  contentDiv.innerHTML = html;
+  statsDiv.style.display = "block";
+}
+
+function hideSimulationStats() {
+  const statsDiv = document.getElementById("simulation-stats");
+  if (statsDiv) statsDiv.style.display = "none";
 }
 
 // Init
+// hide top slots and init picks row
+const topSlots = document.getElementById('slots-bar');
+if (topSlots) topSlots.style.display = 'none';
 renderSlotsBar();
+renderPicksRow();
 </script>
 </body>
 </html>
