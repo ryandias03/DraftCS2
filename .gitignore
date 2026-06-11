@@ -1,0 +1,26 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente
+.env
+.env.local
+
+# Logs
+*.log
+
+# Arquivos temporários
+.tmp
+.cache/
+
+# Configurações do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos do VS Code
+.vscode/
+
+# Build
+dist/
+build/
+
+TODO LIST — CS2 DRAFT GAME.txt

@@ -1,12 +1,194 @@
 /**
- * TOURNAMENT SIMULATOR v3.0
- * Sistema completo de simulação de CS2 com dados reais da HLTV
+ * TOURNAMENT SIMULATOR v3.1 (SIMPLIFIED FIREPOWER-ONLY)
  * 
- * Fluxo completo:
+ * ═══════════════════════════════════════════════════════════════════════════
+ * MODO TEMPORÁRIO: Simulação baseada APENAS em firepower dos jogadores.
+ * 
+ * Métrica atual:
+ *   Firepower médio do time = (fp1 + fp2 + fp3 + fp4 + fp5) / 5  → 0-100
+ *   Cada mapa é decidido comparando as médias de firepower + RNG.
+ * 
+ * As funções antigas (HLTV/mapStats/synergy/recentForm) estão COMENTADAS
+ * para reativação futura quando tivermos dados completos dos 80 jogadores.
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+// ─────────────────────────────────────────────────────────────────────────
+// MAP POOL (2026 competitive pool - Train replaces Overpass)
+// ─────────────────────────────────────────────────────────────────────────
+const MAPS = ["Mirage", "Inferno", "Nuke", "Ancient", "Anubis", "Dust2", "Train"];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FUNÇÕES ATIVAS (VERSÃO SIMPLIFICADA - FIREPOWER ONLY)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Calcula PlayerFirepower (0-100) - VERSÃO SIMPLIFICADA.
+ * Usa diretamente o firepower do data.js.
+ */
+function calculatePlayerFirepower(player) {
+  return player.firepower || 75;
+}
+
+/*
+ * ─── VERSÃO ANTIGA (HLTV) COMENTADA ───
+ * Aguardando dados completos dos 80 jogadores para reativar.
+ *
+ * function calculatePlayerFirepower(player) {
+ *   if (!player.mapStats) return player.firepower || 75;
+ *   if (player.mapStats._synthetic) return player.firepower || 75;
+ *   const mapKeys = Object.keys(player.mapStats).filter(k => !k.startsWith("_"));
+ *   if (mapKeys.length === 0) return player.firepower || 75;
+ *   const avgRating = mapKeys.reduce((s, k) => s + player.mapStats[k].rating, 0) / mapKeys.length;
+ *   const avgImpact = mapKeys.reduce((s, k) => s + player.mapStats[k].impact, 0) / mapKeys.length;
+ *   const avgADR = mapKeys.reduce((s, k) => s + player.mapStats[k].adr, 0) / mapKeys.length;
+ *   const avgKPR = mapKeys.reduce((s, k) => s + player.mapStats[k].kpr, 0) / mapKeys.length;
+ *   const avgMapsPlayed = mapKeys.reduce((s, k) => s + player.mapStats[k].mapsPlayed, 0) / mapKeys.length;
+ *   const firepower = -33.64 + (avgRating * 334.71) + (avgImpact * -128.39) + (avgADR * -1.91) + (avgKPR * 75.90) + (avgMapsPlayed * -1.65);
+ *   return Math.round(Math.max(0, Math.min(100, firepower)));
+ * }
+ */
+
+/**
+ * Calcula a média de firepower do time (0-100).
+ * Fórmula: (fp1 + fp2 + fp3 + fp4 + fp5) / 5
+ * 
+ * Dita se time vai vencer mapa 1, mapa 2 e se necessário mapa 3.
+ * Time com maior média de firepower tem vantagem, mas com RNG.
+ */
+function calculateTeamFirepowerAvg(team) {
+  if (!team.players || team.players.length === 0) return 50;
+  const sum = team.players.reduce((s, p) => s + calculatePlayerFirepower(p), 0);
+  return Math.round(sum / team.players.length);
+}
+
+/**
+ * Simula resultado de UM mapa usando apenas firepower médio.
+ * 
+ * Lógica:
+ * - Calcula média de firepower dos 2 times
+ * - Diferença de firepower entra numa curva logística para gerar probabilidade
+ * - Adiciona RNG (±15% de swing máximo)
+ * - Retorna "A" ou "B"
+ * 
+ * @param {number} fpA - Firepower médio do time A (0-100)
+ * @param {number} fpB - Firepower médio do time B (0-100)
+ * @returns {"A" | "B"}
+ */
+function simulateMapResultSimple(fpA, fpB) {
+  // Diferença normalizada: -100 a +100
+  const diff = fpA - fpB;
+  
+  // Curva logística: converte diferença em probabilidade
+  // Fator 15: diff de 15 = ~73% win chance; diff de 30 = ~88%; diff de 50 = ~97%
+  const rawProb = 1 / (1 + Math.exp(-diff / 15));
+  
+  // Limitar entre 5% e 95% (sempre tem chance de upset)
+  const probTeamA = Math.min(0.95, Math.max(0.05, rawProb));
+  
+  // Adicionar RNG (±10% absoluto)
+  const rng = (Math.random() - 0.5) * 0.20; // ±10%
+  const finalProb = Math.min(0.95, Math.max(0.05, probTeamA + rng));
+  
+  const roll = Math.random();
+  return roll < finalProb ? "A" : "B";
+}
+
+/**
+ * Simula série MD3 completa usando apenas firepower médio.
+ * 
+ * Fluxo:
+ * 1. Calcula média de firepower de cada time = (fp1+fp2+fp3+fp4+fp5)/5
+ * 2. Simula Mapa 1 → vencedor ganha 1 ponto
+ * 3. Simula Mapa 2 → se mesmo vencedor, 2-0 (fim). Senão 1-1
+ * 4. Se necessário, simula Mapa 3 (decider)
+ * 
+ * Os mapas são escolhidos aleatoriamente do pool (sem veto nesta versão).
+ * 
+ * @returns { winner, score, results, maps, firepowerA, firepowerB }
+ */
+function simulateMD3(teamA, teamB) {
+  const fpA = calculateTeamFirepowerAvg(teamA);
+  const fpB = calculateTeamFirepowerAvg(teamB);
+  
+  // Escolher mapas aleatórios do pool (sem veto nesta versão simplificada)
+  const shuffled = [...MAPS].sort(() => Math.random() - 0.5);
+  const seriesMaps = shuffled.slice(0, 3); // 3 mapas para MD3
+  
+  const results = [];
+  let scoreA = 0, scoreB = 0;
+  
+  // Mapa 1
+  const map1 = seriesMaps[0];
+  const winner1 = simulateMapResultSimple(fpA, fpB);
+  results.push({ map: map1, winner: winner1, firepowerA: fpA, firepowerB: fpB });
+  if (winner1 === "A") scoreA++; else scoreB++;
+  
+  // Mapa 2
+  if (scoreA < 2 && scoreB < 2) {
+    const map2 = seriesMaps[1];
+    const winner2 = simulateMapResultSimple(fpA, fpB);
+    results.push({ map: map2, winner: winner2, firepowerA: fpA, firepowerB: fpB });
+    if (winner2 === "A") scoreA++; else scoreB++;
+  }
+  
+  // Mapa 3 (decider, se necessário)
+  if (scoreA < 2 && scoreB < 2) {
+    const map3 = seriesMaps[2];
+    const winner3 = simulateMapResultSimple(fpA, fpB);
+    results.push({ map: map3, winner: winner3, firepowerA: fpA, firepowerB: fpB });
+    if (winner3 === "A") scoreA++; else scoreB++;
+  }
+  
+  return {
+    winner: scoreA > scoreB ? "A" : "B",
+    score: [scoreA, scoreB],
+    results,
+    maps: seriesMaps.slice(0, results.length),
+    firepowerA: fpA,
+    firepowerB: fpB
+  };
+}
+
+/**
+ * Calcula o Power Score geral da equipe (0-100) para exibição.
+ * Versão simplificada: usa apenas a média de firepower.
+ */
+function calculateTeamPowerScore(team) {
+  return calculateTeamFirepowerAvg(team);
+}
+
+/*
+ * ─── VERSÃO ANTIGA (HLTV) COMENTADA ───
+ * function calculateTeamPowerScore(team, mapStrengths) {
+ *   if (!mapStrengths) mapStrengths = calculateTeamAllMapStrengths(team);
+ *   const values = Object.values(mapStrengths).sort((a, b) => b - a);
+ *   const topMaps = values.slice(0, 4);
+ *   const avgMapStrength = topMaps.reduce((a, b) => a + b, 0) / topMaps.length;
+ *   let avgFirepower;
+ *   if (team.players[0] && team.players[0].mapStats) {
+ *     avgFirepower = team.players.reduce((s, p) => s + calculatePlayerFirepower(p), 0) / team.players.length;
+ *   } else {
+ *     avgFirepower = team.players.reduce((s, p) => s + (p.firepower || 75), 0) / team.players.length;
+ *   }
+ *   const synergyMod = calculateSynergyModifier(team);
+ *   const baseScore = avgMapStrength * 0.55 + avgFirepower * 0.45;
+ *   const finalScore = baseScore * (1 + synergyMod);
+ *   return Math.round(Math.max(0, Math.min(100, finalScore)));
+ * }
+ */
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FUNÇÕES COMENTADAS (HLTV/mapStats - aguardando dados completos)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/*
+ * Fluxo original completo (será reativado quando tivermos dados dos 80 jogadores):
+ *
  * 1. PlayerFirepower = Rating×35% + Impact×25% + ADR×15% + KPR×15% + Experience×10%
  * 2. PlayerMapStrength = RatingMapa×40% + ImpactMapa×25% + ADRMapa×15% + KPRMapa×10% + Experience×10%
  * 3. TeamMapStrength = Média dos 5 PlayerMapStrength por mapa
- * 4. Role Synergy = Bônus/Penalidades baseado na composição
+ * 4. Role Synergy = Bônus/Penalidades baseado na composição (AWPer, IGL, Entry, Support, Rifler/Lurker)
  * 5. RecentForm = Winrate dos últimos jogos + força dos oponentes
  * 6. Consistency = Estabilidade baseada em ranking, experiência, tempo de lineup
  * 7. Veto → Mapas definidos → MapScore específico
@@ -15,171 +197,68 @@
  * 10. Win Probability = Função logística
  */
 
-// ─────────────────────────────────────────────────────────────────────────
-// MAP POOL (2026 competitive pool - Train replaces Overpass)
-// ─────────────────────────────────────────────────────────────────────────
-const MAPS = ["Mirage", "Inferno", "Nuke", "Ancient", "Anubis", "Dust2", "Train"];
-
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 1: PLAYER FIREPOWER
-// ─────────────────────────────────────────────────────────────────────────
-
-/**
- * Calcula PlayerFirepower (0-100) baseado em dados reais.
- * Fórmula: Rating×35% + Impact×25% + ADR×15% + KPR×15% + Experience×10%
- * 
- * Experience considera: total de mapas jogados na carreira
- */
-function calculatePlayerFirepower(player) {
-  if (!player.mapStats) {
-    return player.firepower || 75;
-  }
-
-  // Coletar stats médios do jogador
-  const mapValues = Object.values(player.mapStats);
-  if (mapValues.length === 0) return player.firepower || 75;
-
-  const avgRating = mapValues.reduce((s, m) => s + m.rating, 0) / mapValues.length;
-  const avgImpact = mapValues.reduce((s, m) => s + m.impact, 0) / mapValues.length;
-  const avgADR = mapValues.reduce((s, m) => s + m.adr, 0) / mapValues.length;
-  const avgKPR = mapValues.reduce((s, m) => s + m.kpr, 0) / mapValues.length;
-  const avgMapsPlayed = mapValues.reduce((s, m) => s + m.mapsPlayed, 0) / mapValues.length;
-
-  // Normalizar cada componente para 0-100
-  const ratingScore = normalizeRating(avgRating);
-  const impactScore = normalizeImpact(avgImpact);
-  const adrScore = normalizeADR(avgADR);
-  const kprScore = normalizeKPR(avgKPR);
-  const experienceScore = normalizeExperience(avgMapsPlayed);
-
-  // Fórmula do Firepower
-  const firepower = 
-    ratingScore * 0.35 +
-    impactScore * 0.25 +
-    adrScore * 0.15 +
-    kprScore * 0.15 +
-    experienceScore * 0.10;
-
-  return Math.round(Math.max(0, Math.min(100, firepower)));
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// FUNÇÕES DE NORMALIZAÇÃO
-// ─────────────────────────────────────────────────────────────────────────
-
+// --- FUNÇÕES DE NORMALIZAÇÃO (COMENTADAS) ---
+/*
 function normalizeRating(rating) {
-  // Rating HLTV 2.1: típico 0.8 a 1.5, normalizar para 0-100
-  // 0.8 = 20, 1.0 = 50, 1.2 = 70, 1.4 = 90
   return Math.min(100, Math.max(0, (rating - 0.5) * 66.67));
 }
-
 function normalizeImpact(impact) {
-  // Impact HLTV: típico 0.8 a 1.6
   return Math.min(100, Math.max(0, (impact - 0.5) * 66.67));
 }
-
 function normalizeADR(adr) {
-  // ADR: típico 60 a 100
   return Math.min(100, Math.max(0, ((adr - 40) / 60) * 100));
 }
-
 function normalizeKPR(kpr) {
-  // KPR (Kills Per Round): típico 0.55 a 0.85
   return Math.min(100, Math.max(0, ((kpr - 0.40) / 0.50) * 100));
 }
-
 function normalizeExperience(mapsPlayed) {
-  // Experience baseada em mapas jogados
   return Math.min(100, (mapsPlayed / 25) * 100);
 }
+*/
 
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 2: PLAYER MAP STRENGTH
-// ─────────────────────────────────────────────────────────────────────────
-
-/**
- * Calcula força individual em um mapa específico (0-100).
- * Fórmula: RatingMapa×40% + ImpactMapa×25% + ADRMapa×15% + KPRMapa×10% + Experience×10%
- */
+// --- PLAYER MAP STRENGTH (COMENTADO) ---
+/*
 function calculatePlayerMapStrength(player, mapName) {
-  if (!player.mapStats || !player.mapStats[mapName]) {
-    return 50; // neutro se não tiver dados
-  }
-
+  if (!player.mapStats || !player.mapStats[mapName]) return 50;
   const stats = player.mapStats[mapName];
-  
   const ratingScore = normalizeRating(stats.rating);
   const impactScore = normalizeImpact(stats.impact);
   const adrScore = normalizeADR(stats.adr);
   const kprScore = normalizeKPR(stats.kpr);
   const experienceScore = normalizeExperience(stats.mapsPlayed);
-
-  const mapStrength = 
-    ratingScore * 0.40 +
-    impactScore * 0.25 +
-    adrScore * 0.15 +
-    kprScore * 0.10 +
-    experienceScore * 0.10;
-
+  const mapStrength = ratingScore * 0.40 + impactScore * 0.25 + adrScore * 0.15 + kprScore * 0.10 + experienceScore * 0.10;
   return Math.round(Math.max(0, Math.min(100, mapStrength)));
 }
-
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 3: TEAM MAP STRENGTH
-// ─────────────────────────────────────────────────────────────────────────
+*/
 
 /**
- * Calcula a força da equipe em um mapa específico.
- * Média dos 5 jogadores.
- */
-function calculateTeamMapStrength(team, mapName) {
-  if (!team.players || team.players.length === 0) return 50;
-
-  const strengths = team.players.map(p => calculatePlayerMapStrength(p, mapName));
-  const avg = strengths.reduce((s, v) => s + v, 0) / strengths.length;
-  return Math.round(avg);
-}
-
-/**
- * Calcula força em todos os mapas.
+ * Calcula "força em todos os mapas" - VERSÃO SIMPLIFICADA.
+ * Retorna a média de firepower como placeholder para cada mapa,
+ * mantendo compatibilidade com o index.html.
  */
 function calculateTeamAllMapStrengths(team) {
+  const avgFP = team.players.reduce((s, p) => s + (p.firepower || 75), 0) / team.players.length;
   const mapStrengths = {};
   MAPS.forEach(map => {
-    mapStrengths[map] = calculateTeamMapStrength(team, map);
+    mapStrengths[map] = Math.round(avgFP);
   });
   return mapStrengths;
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 4: ROLE SYNERGY
-// ─────────────────────────────────────────────────────────────────────────
+// --- TEAM MAP STRENGTH (COMENTADO - versão antiga com HLTV) ---
+/*
+function calculateTeamMapStrength(team, mapName) {
+  if (!team.players || team.players.length === 0) return 50;
+  const strengths = team.players.map(p => calculatePlayerMapStrength(p, mapName));
+  const avg = strengths.reduce((s, v) => s + v, 0) / strengths.length;
+  return Math.round(avg);
+}
+*/
 
-/**
- * Calcula modificador de sinergia baseado na composição de funções.
- * Composição ideal: 1 AWPer, 1 IGL, 1 Entry, 1 Support, 1 Rifler/Lurker
- * 
- * Penalidades:
- *   Mais de 1 AWPer: -15%
- *   Mais de 1 IGL: -20%
- *   Mais de 1 Lurker: -15%
- *   Mais de 2 Entrys: -10%
- *   Mais de 2 Supports: -10%
- * Bônus:
- *   Composição perfeitamente balanceada: +5%
- * 
- * Limite: -25% a +10%
- */
+// --- ROLE SYNERGY (COMENTADO) ---
+/*
 function calculateSynergyModifier(team) {
-  const roles = {
-    awper: 0,
-    igl: 0,
-    entry: 0,
-    support: 0,
-    rifler: 0,
-    lurker: 0
-  };
-
+  const roles = { awper: 0, igl: 0, entry: 0, support: 0, rifler: 0, lurker: 0 };
   team.players.forEach(player => {
     if (!player.roles) return;
     player.roles.forEach(role => {
@@ -187,407 +266,141 @@ function calculateSynergyModifier(team) {
       if (key in roles) roles[key]++;
     });
   });
-
   let modifier = 0;
-
-  // Penalidades
   if (roles.awper > 1) modifier -= 0.15;
   if (roles.igl > 1) modifier -= 0.20;
   if (roles.lurker > 1) modifier -= 0.15;
   if (roles.entry > 2) modifier -= 0.10;
   if (roles.support > 2) modifier -= 0.10;
-
-  // Bônus para composição perfeita: 1 de cada função principal
-  if (roles.awper === 1 && roles.igl === 1 && roles.entry === 1 && 
-      roles.support === 1 && (roles.rifler + roles.lurker) >= 1) {
+  if (roles.awper === 1 && roles.igl === 1 && roles.entry === 1 && roles.support === 1 && (roles.rifler + roles.lurker) >= 1) {
     modifier += 0.05;
   }
-
   return Math.max(-0.25, Math.min(0.10, modifier));
 }
-
-/**
- * Converte synergy modifier (-0.25 a +0.10) para score 0-100.
- * -0.25 → 37.5, 0 → 50, +0.10 → 55
- */
 function synergyToScore(synergyMod) {
   return 50 + synergyMod * 50;
 }
+*/
 
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 5: RECENT FORM
-// ─────────────────────────────────────────────────────────────────────────
-
-/**
- * Calcula RecentForm (0-100) baseado nos últimos resultados.
- * Como não temos resultados reais em tempo real, estimamos:
- * - PowerScore alto → forma positiva
- * - Estágio do time (Legends > Challengers > Contenders)
- * - Consistência do firepower entre os jogadores
- */
+// --- RECENT FORM (COMENTADO) ---
+/*
 function calculateRecentForm(team) {
   if (!team.players || team.players.length === 0) return 50;
-
-  // Firepower médio como proxy de forma recente
   const avgFP = team.players.reduce((s, p) => s + (p.firepower || 75), 0) / team.players.length;
   const fpScore = Math.min(100, avgFP);
-
-  // Bônus por estágio
   const stageBonus = { Legends: 15, Challengers: 8, Contenders: 0 };
   const sBonus = stageBonus[team.stage] || 0;
-
-  // Penalidade se for time draftado (sem histórico)
   const draftedPenalty = team.id === "drafted-team" ? -10 : 0;
-
-  // FormScore = fpScore ajustado + stageBonus + penalty
   const formScore = Math.max(20, Math.min(100, fpScore * 0.85 + sBonus + draftedPenalty));
   return Math.round(formScore);
 }
+*/
 
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 6: CONSISTENCY RATING
-// ─────────────────────────────────────────────────────────────────────────
-
-/**
- * Calcula Consistency Rating (0-100).
- * Determina o quanto o RNG pode afetar o desempenho.
- * 
- * Fatores:
- * - Estágio do time e ranking (base)
- * - Tempo de lineup (simulado via estágio)
- * - Experiência média dos jogadores
- * - Consistência do firepower entre os jogadores
- * 
- * times top: 85-95, top 10: 75-90, tier 2: 60-80, tier 3: 40-70
- */
+// --- CONSISTENCY RATING (COMENTADO) ---
+/*
 function calculateTeamConsistency(team) {
   if (!team.players || team.players.length === 0) return 50;
-
-  // Base por estágio
   const stageMap = { Legends: 88, Challengers: 75, Contenders: 60 };
-  const stageConsistency = stageMap[team.stage] || 
-    (team.id === "drafted-team" ? 65 : 50);
-
-  // Consistência de firepower entre os players
+  const stageConsistency = stageMap[team.stage] || (team.id === "drafted-team" ? 65 : 50);
   const firepowers = team.players.map(p => p.firepower || 75);
   const avgFP = firepowers.reduce((a, b) => a + b, 0) / firepowers.length;
   const fpVariance = Math.sqrt(firepowers.reduce((sum, fp) => sum + Math.pow(fp - avgFP, 2), 0) / firepowers.length);
-  // Quanto menor a variação, maior a consistência
   const fpConsistency = Math.max(0, 100 - fpVariance * 3);
-
-  // Experiência média
   let expSum = 0, expCount = 0;
   team.players.forEach(p => {
     if (p.mapStats) {
-      const maps = Object.values(p.mapStats);
-      if (maps.length > 0) {
-        expSum += maps.reduce((s, m) => s + m.mapsPlayed, 0) / maps.length;
+      const mapKeys = Object.keys(p.mapStats).filter(k => !k.startsWith("_"));
+      if (mapKeys.length > 0) {
+        const totalMaps = mapKeys.reduce((s, k) => s + p.mapStats[k].mapsPlayed, 0);
+        expSum += totalMaps / mapKeys.length;
         expCount++;
       }
     }
   });
   const avgExp = expCount > 0 ? expSum / expCount : 10;
   const expScore = Math.min(100, (avgExp / 25) * 100);
-
-  // Combinar: stage 45% + fp consistency 25% + experience 30%
-  const consistency = Math.round(
-    stageConsistency * 0.45 +
-    fpConsistency * 0.25 +
-    expScore * 0.30
-  );
-
+  const consistency = Math.round(stageConsistency * 0.45 + fpConsistency * 0.25 + expScore * 0.30);
   return Math.max(30, Math.min(100, consistency));
 }
-
-/**
- * Aplica variação aleatória baseada na consistência.
- * consistency 90 → ±4
- * consistency 80 → ±5
- * consistency 70 → ±6
- * consistency 60 → ±8
- * consistency 50 → ±10
- * consistency 40 → ±12
- * consistency 30 → ±14
- */
 function applyRandomVariance(consistency) {
   const maxVariance = Math.max(4, 22 - consistency * 0.2);
   return (Math.random() * 2 - 1) * maxVariance;
 }
+*/
 
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 7: MAP SCORE
-// ─────────────────────────────────────────────────────────────────────────
-
-/**
- * Calcula o MapScore final para uma equipe em um mapa específico.
- * 
- * MapScore = TeamMapStrength×50% + Firepower médio×25% + RecentForm×15% + Synergy×10%
- * 
- * Este score é calculado APÓS o veto, apenas nos mapas selecionados.
- */
+// --- MAP SCORE (COMENTADO) ---
+/*
 function calculateMapScore(team, mapName, mapStrength) {
-  if (mapStrength === undefined) {
-    mapStrength = calculateTeamMapStrength(team, mapName);
-  }
-
-  // Firepower médio (calculado dinamicamente se tiver mapStats)
+  if (mapStrength === undefined) mapStrength = calculateTeamMapStrength(team, mapName);
   let avgFirepower;
   if (team.players[0] && team.players[0].mapStats) {
     avgFirepower = team.players.reduce((s, p) => s + calculatePlayerFirepower(p), 0) / team.players.length;
   } else {
     avgFirepower = team.players.reduce((s, p) => s + (p.firepower || 75), 0) / team.players.length;
   }
-
-  // Recent Form
   const recentForm = calculateRecentForm(team);
-
-  // Synergy (convertido para 0-100)
   const synergyMod = calculateSynergyModifier(team);
   const synergyScore = synergyToScore(synergyMod);
-
-  // MapScore final
-  const mapScore = 
-    mapStrength * 0.50 +
-    avgFirepower * 0.25 +
-    recentForm * 0.15 +
-    synergyScore * 0.10;
-
+  const mapScore = mapStrength * 0.50 + avgFirepower * 0.25 + recentForm * 0.15 + synergyScore * 0.10;
   return mapScore;
 }
+*/
 
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 8: VETO SYSTEM
-// ─────────────────────────────────────────────────────────────────────────
-
-/**
- * Ordena mapas de mais forte a mais fraco.
- */
+// --- VETO SYSTEM (COMENTADO) ---
+/*
 function rankMapsByStrength(mapStrengths) {
-  return Object.entries(mapStrengths)
-    .sort((a, b) => b[1] - a[1])
-    .map(entry => entry[0]);
+  return Object.entries(mapStrengths).sort((a, b) => b[1] - a[1]).map(entry => entry[0]);
 }
-
-/**
- * Simula o processo completo de veto e pick.
- * Fluxo: Ban, Ban, Pick, Pick, Ban, Ban, Decider
- * 
- * 1. Time A bane pior mapa
- * 2. Time B bane pior mapa  
- * 3. Time A pick melhor mapa → Mapa 1
- * 4. Time B pick melhor mapa → Mapa 2
- * 5. Time A bane o mapa mais favorável ao Time B
- * 6. Time B bane o mapa mais favorável ao Time A
- * 7. Decider: último mapa → Mapa 3
- * 
- * Retorna array com 3 mapas.
- */
 function simulateVetoBan(teamAStrengths, teamBStrengths) {
   const allMaps = Object.keys(teamAStrengths);
   let available = [...allMaps];
-
   const rankedA = rankMapsByStrength(teamAStrengths);
   const rankedB = rankMapsByStrength(teamBStrengths);
-
   const seriesMaps = [];
-
-  // Step 1: Team A bans weakest map
   const banA1 = rankedA[rankedA.length - 1];
   available = available.filter(m => m !== banA1);
-
-  // Step 2: Team B bans weakest map (that Team A is good at)
-  const advantageB1 = available.map(m => ({
-    map: m,
-    advantage: teamAStrengths[m] - teamBStrengths[m]
-  })).sort((a, b) => b.advantage - a.advantage);
+  const advantageB1 = available.map(m => ({ map: m, advantage: teamAStrengths[m] - teamBStrengths[m] })).sort((a, b) => b.advantage - a.advantage);
   const banB1 = advantageB1[0].map;
   available = available.filter(m => m !== banB1);
-
-  // Step 3: Team A picks best map → Map 1
   const pickA1 = rankedA.find(m => available.includes(m));
   seriesMaps.push(pickA1);
   available = available.filter(m => m !== pickA1);
-
-  // Step 4: Team B picks best map → Map 2
   const pickB1 = rankedB.find(m => available.includes(m));
   seriesMaps.push(pickB1);
   available = available.filter(m => m !== pickB1);
-
-  // Step 5: Team A bans map most favorable to Team B
-  const advantageForB = available.map(m => ({
-    map: m,
-    advantage: teamBStrengths[m] - teamAStrengths[m]
-  })).sort((a, b) => b.advantage - a.advantage);
+  const advantageForB = available.map(m => ({ map: m, advantage: teamBStrengths[m] - teamAStrengths[m] })).sort((a, b) => b.advantage - a.advantage);
   const banA2 = advantageForB[0].map;
   available = available.filter(m => m !== banA2);
-
-  // Step 6: Team B bans map most favorable to Team A
-  const advantageForA = available.map(m => ({
-    map: m,
-    advantage: teamAStrengths[m] - teamBStrengths[m]
-  })).sort((a, b) => b.advantage - a.advantage);
+  const advantageForA = available.map(m => ({ map: m, advantage: teamAStrengths[m] - teamBStrengths[m] })).sort((a, b) => b.advantage - a.advantage);
   const banB2 = advantageForA[0].map;
   available = available.filter(m => m !== banB2);
-
-  // Step 7: Decider = last map → Map 3
-  if (available.length > 0) {
-    seriesMaps.push(available[0]);
-  }
-
+  if (available.length > 0) seriesMaps.push(available[0]);
   return seriesMaps;
 }
+*/
 
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 9 & 10: WIN PROBABILITY (Função Logística)
-// ─────────────────────────────────────────────────────────────────────────
-
-/**
- * Converte diferença de FinalMapScore em probabilidade usando função logística.
- * 
- * Diferença 0: 50%
- * Diferença 5: ~60%
- * Diferença 10: ~70%
- * Diferença 15: ~80%
- * Diferença 20: ~90%
- * 
- * Limites: mínimo 10%, máximo 90%
- */
+// --- WIN PROBABILITY (COMENTADO) ---
+/*
 function calculateWinProbability(teamAScore, teamBScore) {
   const difference = teamAScore - teamBScore;
-  
-  // Curva logística com fator 7.5
   let probability = 1 / (1 + Math.exp(-difference / 7.5));
-  
-  // Limitar entre 10% e 90%
   probability = Math.min(0.90, Math.max(0.10, probability));
-  
-  return {
-    teamA: Math.round(probability * 100),
-    teamB: Math.round((1 - probability) * 100)
-  };
+  return { teamA: Math.round(probability * 100), teamB: Math.round((1 - probability) * 100) };
 }
-
-/**
- * Simula resultado de um mapa.
- * Aplica RandomVariance baseado na consistência de cada equipe,
- * depois compara os FinalMapScores.
- */
 function simulateMapResult(mapScoreA, mapScoreB, consistencyA, consistencyB) {
   const varianceA = applyRandomVariance(consistencyA);
   const varianceB = applyRandomVariance(consistencyB);
-  
   const finalA = mapScoreA + varianceA;
   const finalB = mapScoreB + varianceB;
-  
-  // Probabilidade usando a diferença dos scores finais
   const prob = calculateWinProbability(finalA, finalB);
   const random = Math.random() * 100;
-  
   return random < prob.teamA ? "A" : "B";
 }
+*/
 
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 11: MD3 SIMULATION
-// ─────────────────────────────────────────────────────────────────────────
-
-/**
- * Simula série MD3 completa.
- * 
- * Fluxo:
- * 1. Calcular map strengths para veto
- * 2. Executar veto para definir os mapas
- * 3. Para cada mapa: calcular MapScore específico
- * 4. Simular cada mapa com variação controlada
- * 
- * Retorna: { winner, score, results, maps, consistencyA, consistencyB }
- */
-function simulateMD3(teamA, teamB) {
-  // Calcular forças em todos os mapas para o veto
-  const mapStrengthsA = calculateTeamAllMapStrengths(teamA);
-  const mapStrengthsB = calculateTeamAllMapStrengths(teamB);
-
-  // Executar veto → define os 3 mapas da série
-  const seriesMaps = simulateVetoBan(mapStrengthsA, mapStrengthsB);
-
-  // Calcular consistência de cada equipe
-  const consistencyA = calculateTeamConsistency(teamA);
-  const consistencyB = calculateTeamConsistency(teamB);
-
-  const results = [];
-  let scoreA = 0, scoreB = 0;
-
-  // Simular cada mapa individualmente
-  for (let i = 0; i < seriesMaps.length && scoreA < 2 && scoreB < 2; i++) {
-    const map = seriesMaps[i];
-    
-    // Força específica no mapa selecionado
-    const mapStrA = mapStrengthsA[map];
-    const mapStrB = mapStrengthsB[map];
-    
-    // MapScore com a fórmula completa
-    const mapScoreA = calculateMapScore(teamA, map, mapStrA);
-    const mapScoreB = calculateMapScore(teamB, map, mapStrB);
-
-    // Simular com variação controlada
-    const winner = simulateMapResult(mapScoreA, mapScoreB, consistencyA, consistencyB);
-    results.push({ 
-      map, 
-      winner, 
-      scoreA: Math.round(mapScoreA * 10) / 10, 
-      scoreB: Math.round(mapScoreB * 10) / 10
-    });
-
-    if (winner === "A") scoreA++;
-    else scoreB++;
-  }
-
-  return {
-    winner: scoreA > scoreB ? "A" : "B",
-    score: [scoreA, scoreB],
-    results,
-    maps: seriesMaps.slice(0, results.length),
-    consistencyA,
-    consistencyB
-  };
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// TEAM POWER SCORE (Força geral para exibição)
-// ─────────────────────────────────────────────────────────────────────────
-
-/**
- * Calcula o Power Score geral da equipe (0-100) para exibição.
- * Usa o Top 4 mapas (os melhores) em vez da média dos 7,
- * pois reflete melhor a força real já que mapas fracos são banidos.
- */
-function calculateTeamPowerScore(team, mapStrengths) {
-  if (!mapStrengths) {
-    mapStrengths = calculateTeamAllMapStrengths(team);
-  }
-
-  // Top 4 mapas
-  const values = Object.values(mapStrengths).sort((a, b) => b - a);
-  const topMaps = values.slice(0, 4);
-  const avgMapStrength = topMaps.reduce((a, b) => a + b, 0) / topMaps.length;
-
-  // Firepower médio (dinâmico se possível)
-  let avgFirepower;
-  if (team.players[0] && team.players[0].mapStats) {
-    avgFirepower = team.players.reduce((s, p) => s + calculatePlayerFirepower(p), 0) / team.players.length;
-  } else {
-    avgFirepower = team.players.reduce((s, p) => s + (p.firepower || 75), 0) / team.players.length;
-  }
-
-  const synergyMod = calculateSynergyModifier(team);
-  const baseScore = avgMapStrength * 0.55 + avgFirepower * 0.45;
-  const finalScore = baseScore * (1 + synergyMod);
-
-  return Math.round(Math.max(0, Math.min(100, finalScore)));
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// ETAPA 12: SWISS SYSTEM
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// SWISS SYSTEM
+// ═══════════════════════════════════════════════════════════════════════════
 
 class SwissGroup {
   constructor(teams) {
@@ -613,13 +426,11 @@ class SwissGroup {
     let withBye = [...eligible];
     let byeTeam = null;
 
-    // Se número ímpar, time com pior record fica de bye
     if (withBye.length % 2 !== 0) {
       withBye.sort((a, b) => (b.wins - b.losses) - (a.wins - a.losses));
       byeTeam = withBye.pop();
     }
 
-    // Agrupar por record
     const byRecord = {};
     withBye.forEach(s => {
       const rec = `${s.wins}-${s.losses}`;
@@ -631,12 +442,10 @@ class SwissGroup {
     const used = new Set();
 
     Object.values(byRecord).forEach(group => {
-      // Embaralhar
       for (let i = group.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [group[i], group[j]] = [group[j], group[i]];
       }
-
       for (let i = 0; i < group.length - 1; i += 2) {
         if (!used.has(group[i]) && !used.has(group[i + 1])) {
           pairings.push([group[i], group[i + 1]]);
@@ -646,7 +455,6 @@ class SwissGroup {
       }
     });
 
-    // Parear times restantes de grupos diferentes
     const remaining = withBye.filter(s => !used.has(s));
     for (let i = 0; i < remaining.length - 1; i += 2) {
       if (!used.has(remaining[i]) && !used.has(remaining[i + 1])) {
@@ -683,7 +491,6 @@ class SwissGroup {
         s1.losses++;
       }
 
-      // Track map scores
       if (match.score[0] > match.score[1]) {
         s1.mapsWon += match.score[0];
         s1.mapsLost += match.score[1];
@@ -712,19 +519,14 @@ class SwissGroup {
 
   getStandings() {
     return [...this.standings].sort((a, b) => {
-      // 1. Wins
       if (a.wins !== b.wins) return b.wins - a.wins;
-      // 2. Losses (menos losses = melhor)
       if (a.losses !== b.losses) return a.losses - b.losses;
-      // 3. Map difference
       const mapDiffA = a.mapsWon - a.mapsLost;
       const mapDiffB = b.mapsWon - b.mapsLost;
       if (mapDiffA !== mapDiffB) return mapDiffB - mapDiffA;
-      // 4. Strength of Schedule
       if (a.opponentStrength !== b.opponentStrength) {
         return b.opponentStrength - a.opponentStrength;
       }
-      // 5. Power Score
       return (b.team.powerScore || 50) - (a.team.powerScore || 50);
     });
   }
@@ -737,9 +539,9 @@ class SwissGroup {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 // PLAYOFFS
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 
 class PlayoffsBracket {
   constructor(seededTeams) {
@@ -798,9 +600,9 @@ class PlayoffsBracket {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 // COMPLETE TOURNAMENT SIMULATION
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 
 async function simulateCompleteTournament(teams) {
   const tournament = {
@@ -815,11 +617,9 @@ async function simulateCompleteTournament(teams) {
     }
   };
 
-  // Calcular Power Scores
+  // Calcular Power Scores (versão simplificada: firepower only)
   teams.forEach(team => {
-    const mapStrengths = calculateTeamAllMapStrengths(team);
-    team.mapStrengths = mapStrengths;
-    team.powerScore = calculateTeamPowerScore(team, mapStrengths);
+    team.powerScore = calculateTeamPowerScore(team);
   });
 
   // Swiss phase
@@ -851,9 +651,9 @@ async function simulateCompleteTournament(teams) {
   return tournament;
 }
 
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 // MULTIPLE SIMULATIONS FOR STATISTICS
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 
 async function runMultipleSimulations(teams, iterations = 100) {
   const stats = {};
